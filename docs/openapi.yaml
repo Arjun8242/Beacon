@@ -1,0 +1,1936 @@
+openapi: 3.1.0
+
+info:
+  title: Distributed Uptime Monitoring Platform API
+  version: 1.0.0
+  description: |
+    REST API for the Distributed Uptime Monitoring Platform.
+
+    Handles user authentication, monitor lifecycle management,
+    metrics retrieval, and public status page data.
+
+    All authenticated endpoints require a JWT Bearer token obtained
+    from `POST /auth/login` or `POST /auth/register`.
+
+    **Response envelope:**
+    - Every success response wraps data in `{ "success": true, "data": { ... } }`
+    - Every error response wraps details in `{ "success": false, "error": { "code": "...", "message": "..." } }`
+  contact:
+    name: Arjun Jaiswal
+  license:
+    name: MIT
+
+servers:
+  - url: http://localhost:4000/api/v1
+    description: Local development
+  - url: https://api.example.com/api/v1
+    description: Production
+
+tags:
+  - name: Auth
+    description: User registration, login, and profile
+  - name: Dashboard
+    description: Aggregated overview stats for the authenticated user
+  - name: Monitors
+    description: Monitor CRUD — create, read, update, delete, pause, resume
+  - name: Metrics
+    description: Per-monitor analytics — stats, check history, latency buckets, incidents
+  - name: Status
+    description: Public status page — no authentication required
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SECURITY SCHEMES
+# ─────────────────────────────────────────────────────────────────────────────
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        JWT token obtained from `POST /auth/login` or `POST /auth/register`.
+        Token payload: `{ sub: userId, email, iat, exp }`.
+        Expiry: 24 hours. No refresh token in V1.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# REUSABLE SCHEMAS
+# ─────────────────────────────────────────────────────────────────────────────
+
+  schemas:
+
+    # ── Primitive / shared ───────────────────────────────────────────────────
+
+    MonitorStatus:
+      type: string
+      enum: [PENDING, UP, DOWN, DEGRADED, PAUSED]
+      description: Current operational status of a monitor.
+      example: UP
+
+    CheckStatus:
+      type: string
+      enum: [UP, DOWN, DEGRADED]
+      description: Result status of a single check execution.
+      example: UP
+
+    SupportedInterval:
+      type: integer
+      enum: [30, 60, 120, 300, 600]
+      description: Check interval in seconds.
+      example: 60
+
+    TimeWindow:
+      type: string
+      enum: [24h, 7d, 30d]
+      description: Time window for metric aggregation.
+      example: 24h
+
+    # ── Domain models ────────────────────────────────────────────────────────
+
+    User:
+      type: object
+      description: An authenticated platform user.
+      required: [id, email, createdAt]
+      properties:
+        id:
+          type: string
+          description: Unique user identifier (cuid).
+          example: clx1abc123
+        email:
+          type: string
+          format: email
+          description: User email address (lowercased).
+          example: arjun@example.com
+        createdAt:
+          type: string
+          format: date-time
+          description: Account creation timestamp (ISO 8601).
+          example: "2025-01-15T10:00:00Z"
+
+    Monitor:
+      type: object
+      description: A configured HTTP/HTTPS endpoint monitor.
+      required:
+        - id
+        - userId
+        - name
+        - url
+        - interval
+        - active
+        - status
+        - slug
+        - nextCheckAt
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          description: Unique monitor identifier (cuid).
+          example: clx1monitor1
+        userId:
+          type: string
+          description: ID of the owning user.
+          example: clx1abc123
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Human-readable monitor name.
+          example: Production API
+        url:
+          type: string
+          format: uri
+          description: HTTP/HTTPS endpoint URL to monitor.
+          example: https://api.myapp.com/health
+        interval:
+          $ref: '#/components/schemas/SupportedInterval'
+        active:
+          type: boolean
+          description: Whether the monitor is actively scheduling checks.
+          example: true
+        status:
+          $ref: '#/components/schemas/MonitorStatus'
+        slug:
+          type: string
+          description: URL-safe unique identifier used for the public status page.
+          example: production-api-x7k2
+        lastCheckedAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: Timestamp of the most recent completed check. Null if never checked.
+          example: "2025-01-15T10:00:00Z"
+        nextCheckAt:
+          type: string
+          format: date-time
+          description: Scheduled time for the next check execution.
+          example: "2025-01-15T10:01:00Z"
+        createdAt:
+          type: string
+          format: date-time
+          description: Monitor creation timestamp (ISO 8601).
+          example: "2025-01-15T09:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp of the most recent update.
+          example: "2025-01-15T10:00:00Z"
+
+    Check:
+      type: object
+      description: The result of a single HTTP check execution.
+      required: [id, monitorId, status, checkedAt]
+      properties:
+        id:
+          type: string
+          description: Unique check identifier (cuid).
+          example: clxcheck1
+        monitorId:
+          type: string
+          description: ID of the parent monitor.
+          example: clx1monitor1
+        status:
+          $ref: '#/components/schemas/CheckStatus'
+        responseTime:
+          type: integer
+          nullable: true
+          description: Round-trip response time in milliseconds. Null if the request never completed.
+          example: 243
+        statusCode:
+          type: integer
+          nullable: true
+          description: HTTP response status code. Null on connection error or timeout.
+          example: 200
+        error:
+          type: string
+          nullable: true
+          description: Error message if the check failed. Null on success.
+          example: null
+        checkedAt:
+          type: string
+          format: date-time
+          description: Timestamp when this check was executed (ISO 8601).
+          example: "2025-01-15T10:00:00Z"
+
+    Incident:
+      type: object
+      description: A detected outage incident for a monitor.
+      required: [id, monitorId, startedAt, isOpen]
+      properties:
+        id:
+          type: string
+          description: Unique incident identifier (cuid).
+          example: clxincident1
+        monitorId:
+          type: string
+          description: ID of the monitor this incident belongs to.
+          example: clx1monitor1
+        startedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the incident was opened (ISO 8601).
+          example: "2025-01-15T08:30:00Z"
+        resolvedAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: Timestamp when the incident was resolved. Null if still open.
+          example: "2025-01-15T08:45:00Z"
+        duration:
+          type: integer
+          nullable: true
+          description: Incident duration in seconds. Null if still open.
+          example: 900
+        isOpen:
+          type: boolean
+          description: True if the incident has not yet been resolved.
+          example: false
+
+    Pagination:
+      type: object
+      description: Pagination metadata included in all list responses.
+      required: [page, limit, total, totalPages, hasNext, hasPrev]
+      properties:
+        page:
+          type: integer
+          description: Current page number (1-indexed).
+          example: 1
+        limit:
+          type: integer
+          description: Number of items per page.
+          example: 20
+        total:
+          type: integer
+          description: Total number of matching records across all pages.
+          example: 100
+        totalPages:
+          type: integer
+          description: Total number of pages (ceil(total / limit)).
+          example: 5
+        hasNext:
+          type: boolean
+          description: Whether a next page exists.
+          example: true
+        hasPrev:
+          type: boolean
+          description: Whether a previous page exists.
+          example: false
+
+    LatencyBucket:
+      type: object
+      description: Aggregated latency metrics for a single time bucket.
+      required: [bucketStart, bucketEnd, checkCount, upCount]
+      properties:
+        bucketStart:
+          type: string
+          format: date-time
+          description: Start of the bucket interval (ISO 8601).
+          example: "2025-01-15T09:00:00Z"
+        bucketEnd:
+          type: string
+          format: date-time
+          description: End of the bucket interval (ISO 8601).
+          example: "2025-01-15T10:00:00Z"
+        avgResponseTime:
+          type: number
+          nullable: true
+          description: Average response time in ms for UP checks in this bucket. Null if no UP checks.
+          example: 243
+        minResponseTime:
+          type: number
+          nullable: true
+          description: Minimum response time in ms for UP checks in this bucket.
+          example: 180
+        maxResponseTime:
+          type: number
+          nullable: true
+          description: Maximum response time in ms for UP checks in this bucket.
+          example: 410
+        checkCount:
+          type: integer
+          description: Total checks executed in this bucket (any status).
+          example: 60
+        upCount:
+          type: integer
+          description: Number of UP checks in this bucket.
+          example: 60
+
+    # ── Composite / response bodies ──────────────────────────────────────────
+
+    DashboardSummary:
+      type: object
+      description: Aggregated health summary across all user monitors.
+      required:
+        - totalMonitors
+        - activeMonitors
+        - pausedMonitors
+        - upMonitors
+        - downMonitors
+        - degradedMonitors
+      properties:
+        totalMonitors:
+          type: integer
+          example: 5
+        activeMonitors:
+          type: integer
+          example: 4
+        pausedMonitors:
+          type: integer
+          example: 1
+        upMonitors:
+          type: integer
+          example: 3
+        downMonitors:
+          type: integer
+          example: 1
+        degradedMonitors:
+          type: integer
+          example: 0
+        avgUptimePercent:
+          type: number
+          nullable: true
+          description: Mean uptime % across all monitors for the last 24 h. Null if no checks yet.
+          example: 98.4
+
+    DashboardIncident:
+      type: object
+      description: Incident summary entry as returned by the dashboard endpoint.
+      required: [id, monitorId, monitorName, startedAt, isOpen]
+      properties:
+        id:
+          type: string
+          example: clx9incident1
+        monitorId:
+          type: string
+          example: clx1monitor1
+        monitorName:
+          type: string
+          example: Production API
+        startedAt:
+          type: string
+          format: date-time
+          example: "2025-01-15T08:30:00Z"
+        resolvedAt:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2025-01-15T08:45:00Z"
+        duration:
+          type: integer
+          nullable: true
+          description: Duration in seconds. Null if unresolved.
+          example: 900
+        isOpen:
+          type: boolean
+          example: false
+
+    DashboardMonitorCard:
+      type: object
+      description: Lightweight monitor summary shown on dashboard status cards.
+      required: [id, name, url, status, active]
+      properties:
+        id:
+          type: string
+          example: clx1monitor1
+        name:
+          type: string
+          example: Production API
+        url:
+          type: string
+          format: uri
+          example: https://api.myapp.com/health
+        status:
+          $ref: '#/components/schemas/MonitorStatus'
+        active:
+          type: boolean
+          example: true
+        lastCheckedAt:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2025-01-15T10:00:00Z"
+        uptimePercent24h:
+          type: number
+          nullable: true
+          description: Uptime % over the last 24 h. Null if no checks yet.
+          example: 99.3
+        avgResponseTime24h:
+          type: number
+          nullable: true
+          description: Average response time in ms over the last 24 h. Null if no checks yet.
+          example: 243
+
+    DashboardResponse:
+      type: object
+      description: Full dashboard payload returned by GET /dashboard.
+      required: [summary, recentIncidents, monitors]
+      properties:
+        summary:
+          $ref: '#/components/schemas/DashboardSummary'
+        recentIncidents:
+          type: array
+          description: The 5 most recent incidents across all user monitors.
+          items:
+            $ref: '#/components/schemas/DashboardIncident'
+        monitors:
+          type: array
+          description: All monitors belonging to the authenticated user (lightweight cards).
+          items:
+            $ref: '#/components/schemas/DashboardMonitorCard'
+
+    MonitorStats:
+      type: object
+      description: Aggregated statistics for a single monitor over a time window.
+      required:
+        - monitorId
+        - window
+        - windowStart
+        - windowEnd
+        - totalChecks
+        - upChecks
+        - downChecks
+        - degradedChecks
+        - uptimePercent
+        - avgResponseTime
+        - minResponseTime
+        - maxResponseTime
+        - openIncidents
+        - totalIncidents
+      properties:
+        monitorId:
+          type: string
+          example: clx1monitor1
+        window:
+          $ref: '#/components/schemas/TimeWindow'
+        windowStart:
+          type: string
+          format: date-time
+          example: "2025-01-14T10:00:00Z"
+        windowEnd:
+          type: string
+          format: date-time
+          example: "2025-01-15T10:00:00Z"
+        totalChecks:
+          type: integer
+          example: 1440
+        upChecks:
+          type: integer
+          example: 1430
+        downChecks:
+          type: integer
+          example: 8
+        degradedChecks:
+          type: integer
+          example: 2
+        uptimePercent:
+          type: number
+          description: "(upChecks / totalChecks) × 100, rounded to 2 decimal places."
+          example: 99.31
+        avgResponseTime:
+          type: number
+          description: Average response time in ms across UP checks only.
+          example: 243
+        minResponseTime:
+          type: number
+          description: Minimum response time in ms across UP checks.
+          example: 98
+        maxResponseTime:
+          type: number
+          description: Maximum response time in ms across UP checks.
+          example: 1240
+        openIncidents:
+          type: integer
+          description: Number of currently open (unresolved) incidents.
+          example: 0
+        totalIncidents:
+          type: integer
+          description: Total incidents opened within the time window.
+          example: 1
+
+    PublicStatusResponse:
+      type: object
+      description: Public-facing monitor status — no sensitive fields exposed.
+      required: [name, status, incidents]
+      properties:
+        name:
+          type: string
+          description: Monitor display name. The URL is never returned.
+          example: Production API
+        status:
+          $ref: '#/components/schemas/MonitorStatus'
+        lastCheckedAt:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2025-01-15T10:00:00Z"
+        uptimePercent7d:
+          type: number
+          nullable: true
+          description: Uptime % over the last 7 days. Null if no check history.
+          example: 99.8
+        avgResponseTime7d:
+          type: number
+          nullable: true
+          description: Average response time in ms over the last 7 days. Null if no history.
+          example: 231
+        incidents:
+          type: array
+          description: The 10 most recent incidents ordered by startedAt DESC.
+          items:
+            type: object
+            required: [startedAt, isOpen]
+            properties:
+              startedAt:
+                type: string
+                format: date-time
+                example: "2025-01-15T08:30:00Z"
+              resolvedAt:
+                type: string
+                format: date-time
+                nullable: true
+                example: "2025-01-15T08:45:00Z"
+              duration:
+                type: integer
+                nullable: true
+                example: 900
+              isOpen:
+                type: boolean
+                example: false
+
+    # ── Envelope wrappers ────────────────────────────────────────────────────
+
+    ErrorResponse:
+      type: object
+      description: Standard error envelope returned on all failed requests.
+      required: [success, error]
+      properties:
+        success:
+          type: boolean
+          enum: [false]
+          example: false
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              description: Machine-readable error constant in SCREAMING_SNAKE_CASE.
+              example: MONITOR_NOT_FOUND
+            message:
+              type: string
+              description: Human-readable error description suitable for UI display.
+              example: Monitor not found
+            details:
+              type: object
+              description: Field-level validation errors. Only present on 422 responses.
+              additionalProperties:
+                type: array
+                items:
+                  type: string
+              example:
+                url: ["Must be a valid HTTP or HTTPS URL"]
+                interval: ["Must be one of: 30, 60, 120, 300, 600"]
+
+# ─────────────────────────────────────────────────────────────────────────────
+# REUSABLE RESPONSES
+# ─────────────────────────────────────────────────────────────────────────────
+
+  responses:
+
+    UnauthorizedError:
+      description: >
+        Missing, expired, or invalid JWT.
+        Possible error codes: AUTH_MISSING_TOKEN, TOKEN_EXPIRED, TOKEN_INVALID, INVALID_CREDENTIALS.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            MissingToken:
+              summary: No Authorization header
+              value:
+                success: false
+                error:
+                  code: AUTH_MISSING_TOKEN
+                  message: Authorization token required
+            ExpiredToken:
+              summary: Token past expiry
+              value:
+                success: false
+                error:
+                  code: TOKEN_EXPIRED
+                  message: Token has expired
+            InvalidToken:
+              summary: Malformed or tampered token
+              value:
+                success: false
+                error:
+                  code: TOKEN_INVALID
+                  message: Invalid token
+
+    ForbiddenError:
+      description: >
+        Authenticated user does not own the requested resource.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error:
+              code: FORBIDDEN
+              message: You do not have access to this monitor
+
+    NotFoundError:
+      description: >
+        The requested resource does not exist.
+        Possible error codes: MONITOR_NOT_FOUND, RESOURCE_NOT_FOUND.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error:
+              code: MONITOR_NOT_FOUND
+              message: Monitor not found
+
+    ValidationError:
+      description: >
+        Request body is valid JSON but fails Zod schema validation.
+        The `details` field contains field-level error messages.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error:
+              code: VALIDATION_ERROR
+              message: Request validation failed
+              details:
+                url: ["Must be a valid HTTP or HTTPS URL"]
+                interval: ["Must be one of: 30, 60, 120, 300, 600"]
+
+    InternalServerError:
+      description: >
+        Unhandled server-side exception. Stack traces are never exposed.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error:
+              code: INTERNAL_ERROR
+              message: An unexpected error occurred
+
+# ─────────────────────────────────────────────────────────────────────────────
+# REUSABLE PARAMETERS
+# ─────────────────────────────────────────────────────────────────────────────
+
+  parameters:
+
+    MonitorId:
+      name: id
+      in: path
+      required: true
+      description: Monitor unique identifier (cuid).
+      schema:
+        type: string
+      example: clx1monitor1
+
+    PageParam:
+      name: page
+      in: query
+      required: false
+      description: Page number for pagination (1-indexed).
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+      example: 1
+
+    LimitParam:
+      name: limit
+      in: query
+      required: false
+      description: Number of items per page. Maximum 100.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+      example: 20
+
+    WindowParam:
+      name: window
+      in: query
+      required: false
+      description: Time window for metric aggregation.
+      schema:
+        $ref: '#/components/schemas/TimeWindow'
+      example: 24h
+
+    SortOrderParam:
+      name: sortOrder
+      in: query
+      required: false
+      description: Sort direction.
+      schema:
+        type: string
+        enum: [asc, desc]
+        default: desc
+      example: desc
+
+    FromParam:
+      name: from
+      in: query
+      required: false
+      description: Filter results after this ISO 8601 timestamp (inclusive).
+      schema:
+        type: string
+        format: date-time
+      example: "2025-01-14T00:00:00Z"
+
+    ToParam:
+      name: to
+      in: query
+      required: false
+      description: Filter results before this ISO 8601 timestamp (inclusive).
+      schema:
+        type: string
+        format: date-time
+      example: "2025-01-15T00:00:00Z"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PATHS
+# ─────────────────────────────────────────────────────────────────────────────
+
+paths:
+
+  # ── Auth ──────────────────────────────────────────────────────────────────
+
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Register a new user account
+      description: |
+        Creates a new user account and immediately returns a signed JWT.
+        The caller does not need to make a separate login request after registration.
+
+        **Business rules:**
+        - Password is hashed with bcrypt (cost factor 12) before storage.
+        - Email is lowercased and trimmed before uniqueness check and storage.
+        - Plain-text password is never logged or returned.
+      operationId: registerUser
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: Valid email address. Normalized to lowercase.
+                  example: arjun@example.com
+                password:
+                  type: string
+                  minLength: 8
+                  maxLength: 72
+                  description: Minimum 8 characters. Maximum 72 characters (bcrypt limit).
+                  example: mysecurepassword
+            example:
+              email: arjun@example.com
+              password: mysecurepassword
+      responses:
+        '201':
+          description: User account created successfully. JWT returned.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [success, data]
+                properties:
+                  success:
+                    type: boolean
+                    enum: [true]
+                  data:
+                    type: object
+                    required: [user, token]
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/User'
+                      token:
+                        type: string
+                        description: Signed JWT with 24-hour expiry.
+                        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+              example:
+                success: true
+                data:
+                  user:
+                    id: clx1abc123
+                    email: arjun@example.com
+                    createdAt: "2025-01-15T10:00:00Z"
+                  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        '409':
+          description: Email already registered.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error:
+                  code: EMAIL_ALREADY_EXISTS
+                  message: An account with this email already exists
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Log in and receive a JWT
+      description: |
+        Authenticates an existing user and returns a signed JWT.
+
+        **Security notes:**
+        - Always returns `INVALID_CREDENTIALS` for both "email not found" and "wrong password"
+          to prevent email enumeration.
+        - A dummy `bcrypt.compare()` is run even when the email is not found, to prevent
+          timing-based enumeration attacks.
+      operationId: loginUser
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: arjun@example.com
+                password:
+                  type: string
+                  minLength: 1
+                  example: mysecurepassword
+            example:
+              email: arjun@example.com
+              password: mysecurepassword
+      responses:
+        '200':
+          description: Login successful. JWT returned.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [success, data]
+                properties:
+                  success:
+                    type: boolean
+                    enum: [true]
+                  data:
+                    type: object
+                    required: [user, token]
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/User'
+                      token:
+                        type: string
+                        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+              example:
+                success: true
+                data:
+                  user:
+                    id: clx1abc123
+                    email: arjun@example.com
+                    createdAt: "2025-01-15T10:00:00Z"
+                  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        '401':
+          description: Invalid credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error:
+                  code: INVALID_CREDENTIALS
+                  message: Invalid email or password
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /auth/me:
+    get:
+      tags: [Auth]
+      summary: Get the current authenticated user profile
+      description: |
+        Returns the profile of the user identified by the JWT Bearer token,
+        including their total monitor count.
+      operationId: getCurrentUser
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Current user profile.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [success, data]
+                properties:
+                  success:
+                    type: boolean
+                    enum: [true]
+                  data:
+                    allOf:
+                      - $ref: '#/components/schemas/User'
+                      - type: object
+                        required: [monitorCount]
+                        properties:
+                          monitorCount:
+                            type: integer
+                            description: Total number of monitors owned by this user.
+                            example: 5
+              example:
+                success: true
+                data:
+                  id: clx1abc123
+                  email: arjun@example.com
+                  createdAt: "2025-01-15T10:00:00Z"
+                  monitorCount: 5
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  # ── Dashboard ─────────────────────────────────────────────────────────────
+
+  /dashboard:
+    get:
+      tags: [Dashboard]
+      summary: Get dashboard overview
+      description: |
+        Returns aggregated health data for the dashboard:
+        - Summary counts (total, active, paused, up, down, degraded monitors)
+        - Average uptime across all monitors (last 24 h)
+        - The 5 most recent incidents across all monitors
+        - All monitors as lightweight status cards
+
+        Uptime and response time fields are `null` for monitors that have no check history yet.
+      operationId: getDashboard
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Dashboard data for the authenticated user.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [success, data]
+                properties:
+                  success:
+                    type: boolean
+                    enum: [true]
+                  data:
+                    $ref: '#/components/schemas/DashboardResponse'
+              example:
+                success: true
+                data:
+                  summary:
+                    totalMonitors: 5
+                    activeMonitors: 4
+                    pausedMonitors: 1
+                    upMonitors: 3
+                    downMonitors: 1
+                    degradedMonitors: 0
+                    avgUptimePercent: 98.4
+                  recentIncidents:
+                    - id: clx9incident1
+                      monitorId: clx1monitor1
+                      monitorName: Production API
+                      startedAt: "2025-01-15T08:30:00Z"
+                      resolvedAt: "2025-01-15T08:45:00Z"
+                      duration: 900
+                      isOpen: false
+                  monitors:
+                    - id: clx1monitor1
+                      name: Production API
+                      url: https://api.myapp.com/health
+                      status: UP
+                      active: true
+                      lastCheckedAt: "2025-01-15T10:00:00Z"
+                      uptimePercent24h: 99.3
+                      avgResponseTime24h: 243
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # ── Monitors ──────────────────────────────────────────────────────────────
+
+  /monitors:
+    post:
+      tags: [Monitors]
+      summary: Create a new monitor
+      description: |
+        Creates a new HTTP/HTTPS monitor for the authenticated user.
+
+        **Business rules:**
+        - `slug` is auto-generated as `slugify(name) + '-' + nanoid(4)`.
+        - `status` defaults to `PENDING`.
+        - `active` defaults to `true`.
+        - `nextCheckAt` is set to `NOW()` so the scheduler picks it up immediately.
+        - `userId` is derived from the JWT — never from the request body.
+      operationId: createMonitor
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, url, interval]
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 100
+                  description: Human-readable monitor name. Whitespace is trimmed.
+                  example: Production API
+                url:
+                  type: string
+                  format: uri
+                  description: Must be a valid HTTP or HTTPS URL.
+                  example: https://api.myapp.com/health
+                interval:
+                  $ref: '#/components/schemas/SupportedInterval'
+            example:
+              name: Production API
+              url: https://api.myapp.com/health
+              interval: 60
+      responses:
+        '201':
+          description: Monitor created successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [success, data]
+                properties:
+                  success:
+                    type: boolean
+                    enum: [true]
+                  data:
+                    $ref: '#/components/schemas/Monitor'
+              example:
+                success: true
+                data:
+                  id: clx1monitor1
+                  userId: clx1abc123
+                  name: Production API
+                  url: https://api.myapp.com/health
+                  interval: 60
+                  active: true
+                  status: PENDING
+                  slug: production-api-x7k2
+                  lastCheckedAt: null
+                  nextCheckAt: "2025-01-15T10:00:00Z"
+                  createdAt: "2025-01-15T10:00:00Z"
+                  updatedAt: "2025-01-15T10:00:00Z"
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    get:
+      tags: [Monitors]
+      summary: List all monitors
+      description: |
+        Returns a paginated list of monitors owned by the authenticated user.
+        All filter and sort parameters are optional.
+        The query always scopes results to the authenticated user — cross-user access is impossible.
+      operationId: listMonitors
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: status
+          in: query
+          required: false
+          description: Filter monitors by current status.
+          schema:
+            $ref: '#/components/schemas/MonitorStatus'
+          example: UP
+        - name: active
+          in: query
+          required: false
+          description: Filter by active state. String values "true" and "false" are coerced to boolean.
+          schema:
+            type: boolean
+          example: true
+        - name: sortBy
+          in: query
+          required: false
+          description: Field to sort results by.
+          schema:
+            type: string
+            enum: [createdAt, name, status, lastCheckedAt]
+            default: createdAt
+          example: createdAt
+        - $ref: '#/components/parameters/SortOrderParam'
+      responses:
+        '200':
+          description: Paginated list of monitors.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [success, data]
+                properties:
+                  success:
+                    type: boolean
+                    enum: [true]
+                  data:
+                    type: object
+                    required: [items, pagination]
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Monitor'
+                      pagination:
+                        $ref: '#/components/schemas/Pagination'
+              example:
+                success: true
+                data:
+                  items:
+                    - id: clx1monitor1
+                      userId: clx1abc123
+                      name: Production API
+                      url: https://api.myapp.com/health
+                      interval: 60
+                      active: true
+                      status: UP
+                      slug: production-api-x7k2
+                      lastCheckedAt: "2025-01-15T10:00:00Z"
+                      nextCheckAt: "2025-01-15T10:01:00Z"
+                      createdAt: "2025-01-15T09:00:00Z"
+                      updatedAt: "2025-01-15T10:00:00Z"
+                  pagination:
+                    page: 1
+                    limit: 20
+                    total: 5
+                    totalPages: 1
+                    hasNext: false
+                    hasPrev: false
+        '400':
+          description: Invalid filter or sort parameter.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                InvalidFilter:
+                  value:
+                    success: false
+                    error:
+                      code: INVALID_FILTER
+                      message: status must be one of UP, DOWN, DEGRADED, PENDING, PAUSED
+                InvalidSortField:
+                  value:
+                    success: false
+                    error:
+                      code: INVALID_SORT_FIELD
+                      message: sortBy must be one of createdAt, name, status, lastCheckedAt
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /monitors/{id}:
+    get:
+      tags: [Monitors]
+      summary: Get a single monitor
+      description: Returns full details of a monitor owned by the authenticated user.
+      operationId: getMonitor
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/MonitorId'
+      responses:
+        '200':
+          description: Monitor details.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [success, data]
+                properties:
+                  success:
+                    type: boolean
+                    enum: [true]
+                  data:
+                    $ref: '#/components/schemas/Monitor'
+              example:
+                success: true
+                data:
+                  id: clx1monitor1
+                  userId: clx1abc123
+                  name: Production API
+                  url: https://api.myapp.com/health
+                  interval: 60
+                  active: true
+                  status: UP
+                  slug: production-api-x7k2
+                  lastCheckedAt: "2025-01-15T10:00:00Z"
+                  nextCheckAt: "2025-01-15T10:01:00Z"
+                  createdAt: "2025-01-15T09:00:00Z"
+                  updatedAt: "2025-01-15T10:00:00Z"
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    patch:
+      tags: [Monitors]
+      summary: Update a monitor
+      description: |
+        Partially updates a monitor. All fields are optional — only provided fields are changed.
+        At least one field must be present in the request body.
+
+        **Business rules:**
+        - If `interval` changes, `nextCheckAt` is recalculated as `NOW() + newInterval`.
+        - If `active` is set to `false`, `status` is updated to `PAUSED`.
+        - If `active` is set to `true`, `status` is reset to `PENDING` and `nextCheckAt` is set to `NOW()`.
+        - Ownership is verified before any update is applied.
+      operationId: updateMonitor
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/MonitorId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              minProperties: 1
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 100
+                  example: Production API v2
+                url:
+                  type: string
+                  format: uri
+                  example: https://api.myapp.com/v2/health
+                interval:
+                  $ref: '#/components/schemas/SupportedInterval'
+                active:
+                  type: boolean
+                  description: Set false to pause, true to resume (prefer dedicated endpoints).
+                  example: true
+            example:
+              name: Production API v2
+              interval: 120
+      responses:
+        '200':
+          description: Monitor updated successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [success, data]
+                properties:
+                  success:
+                    type: boolean
+                    enum: [true]
+                  data:
+                    $ref: '#/components/schemas/Monitor'
+        '400':
+          description: Empty update — no recognised fields in request body.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error:
+                  code: EMPTY_UPDATE
+                  message: At least one field must be provided
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+    delete:
+      tags: [Monitors]
+      summary: Delete a monitor
+      description: |
+        Permanently deletes a monitor and all associated check and incident records.
+        This operation is irreversible. Deletion cascades via Prisma `onDelete: Cascade`.
+      operationId: deleteMonitor
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/MonitorId'
+      responses:
+        '200':
+          description: Monitor deleted successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [success, data]
+                properties:
+                  success:
+                    type: boolean
+                    enum: [true]
+                  data:
+                    type: object
+                    required: [id, deleted]
+                    properties:
+                      id:
+                        type: string
+                        example: clx1monitor1
+                      deleted:
+                        type: boolean
+                        enum: [true]
+                        example: true
+              example:
+                success: true
+                data:
+                  id: clx1monitor1
+                  deleted: true
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /monitors/{id}/pause:
+    patch:
+      tags: [Monitors]
+      summary: Pause a monitor
+      description: |
+        Stops check execution for a monitor by setting `active = false` and `status = PAUSED`.
+        The scheduler will skip this monitor on subsequent ticks.
+        In-flight BullMQ jobs already enqueued before this call will still complete.
+      operationId: pauseMonitor
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/MonitorId'
+      responses:
+        '200':
+          description: Monitor paused successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [success, data]
+                properties:
+                  success:
+                    type: boolean
+                    enum: [true]
+                  data:
+                    type: object
+                    required: [id, active, status]
+                    properties:
+                      id:
+                        type: string
+                        example: clx1monitor1
+                      active:
+                        type: boolean
+                        enum: [false]
+                        example: false
+                      status:
+                        type: string
+                        enum: [PAUSED]
+                        example: PAUSED
+              example:
+                success: true
+                data:
+                  id: clx1monitor1
+                  active: false
+                  status: PAUSED
+        '400':
+          description: Monitor is already paused.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error:
+                  code: ALREADY_PAUSED
+                  message: Monitor is already paused
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /monitors/{id}/resume:
+    patch:
+      tags: [Monitors]
+      summary: Resume a paused monitor
+      description: |
+        Resumes check execution for a paused monitor by setting `active = true`,
+        `status = PENDING`, and `nextCheckAt = NOW()`.
+        Setting `nextCheckAt` to now ensures the scheduler picks it up on the very next tick.
+      operationId: resumeMonitor
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/MonitorId'
+      responses:
+        '200':
+          description: Monitor resumed successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [success, data]
+                properties:
+                  success:
+                    type: boolean
+                    enum: [true]
+                  data:
+                    type: object
+                    required: [id, active, status, nextCheckAt]
+                    properties:
+                      id:
+                        type: string
+                        example: clx1monitor1
+                      active:
+                        type: boolean
+                        enum: [true]
+                        example: true
+                      status:
+                        type: string
+                        enum: [PENDING]
+                        example: PENDING
+                      nextCheckAt:
+                        type: string
+                        format: date-time
+                        example: "2025-01-15T10:00:00Z"
+              example:
+                success: true
+                data:
+                  id: clx1monitor1
+                  active: true
+                  status: PENDING
+                  nextCheckAt: "2025-01-15T10:00:00Z"
+        '400':
+          description: Monitor is already active.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error:
+                  code: ALREADY_ACTIVE
+                  message: Monitor is already active
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  # ── Metrics ───────────────────────────────────────────────────────────────
+
+  /monitors/{id}/stats:
+    get:
+      tags: [Metrics]
+      summary: Get aggregated statistics for a monitor
+      description: |
+        Returns uptime percentage, response time aggregates, and incident counts
+        for a configurable time window.
+
+        **Notes:**
+        - `avgResponseTime` is computed only over `UP` checks.
+        - If `totalChecks = 0`, all numeric fields return `0`.
+        - Uses the `checks(monitorId, checkedAt)` composite index for performance.
+      operationId: getMonitorStats
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/MonitorId'
+        - $ref: '#/components/parameters/WindowParam'
+      responses:
+        '200':
+          description: Aggregated statistics for the requested time window.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [success, data]
+                properties:
+                  success:
+                    type: boolean
+                    enum: [true]
+                  data:
+                    $ref: '#/components/schemas/MonitorStats'
+              example:
+                success: true
+                data:
+                  monitorId: clx1monitor1
+                  window: 24h
+                  windowStart: "2025-01-14T10:00:00Z"
+                  windowEnd: "2025-01-15T10:00:00Z"
+                  totalChecks: 1440
+                  upChecks: 1430
+                  downChecks: 8
+                  degradedChecks: 2
+                  uptimePercent: 99.31
+                  avgResponseTime: 243
+                  minResponseTime: 98
+                  maxResponseTime: 1240
+                  openIncidents: 0
+                  totalIncidents: 1
+        '400':
+          description: Invalid window parameter.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error:
+                  code: INVALID_WINDOW
+                  message: window must be one of 24h, 7d, 30d
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /monitors/{id}/checks:
+    get:
+      tags: [Metrics]
+      summary: Get check history for a monitor
+      description: |
+        Returns paginated raw check results for a monitor with optional date range
+        and status filtering. Results are sorted by `checkedAt`.
+      operationId: getMonitorChecks
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/MonitorId'
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: status
+          in: query
+          required: false
+          description: Filter by check result status.
+          schema:
+            $ref: '#/components/schemas/CheckStatus'
+          example: DOWN
+        - $ref: '#/components/parameters/FromParam'
+        - $ref: '#/components/parameters/ToParam'
+        - $ref: '#/components/parameters/SortOrderParam'
+      responses:
+        '200':
+          description: Paginated check history.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [success, data]
+                properties:
+                  success:
+                    type: boolean
+                    enum: [true]
+                  data:
+                    type: object
+                    required: [items, pagination]
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Check'
+                      pagination:
+                        $ref: '#/components/schemas/Pagination'
+              example:
+                success: true
+                data:
+                  items:
+                    - id: clxcheck1
+                      monitorId: clx1monitor1
+                      status: UP
+                      responseTime: 243
+                      statusCode: 200
+                      error: null
+                      checkedAt: "2025-01-15T10:00:00Z"
+                    - id: clxcheck2
+                      monitorId: clx1monitor1
+                      status: DOWN
+                      responseTime: 10001
+                      statusCode: null
+                      error: Request timeout
+                      checkedAt: "2025-01-15T09:59:00Z"
+                  pagination:
+                    page: 1
+                    limit: 20
+                    total: 1440
+                    totalPages: 72
+                    hasNext: true
+                    hasPrev: false
+        '400':
+          description: Invalid filter or date range.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                InvalidFilter:
+                  value:
+                    success: false
+                    error:
+                      code: INVALID_FILTER
+                      message: status must be one of UP, DOWN, DEGRADED
+                InvalidDateRange:
+                  value:
+                    success: false
+                    error:
+                      code: INVALID_DATE_RANGE
+                      message: from must be before to
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /monitors/{id}/latency:
+    get:
+      tags: [Metrics]
+      summary: Get bucketed latency data for the response-time chart
+      description: |
+        Returns response-time metrics grouped into time buckets sized according to the
+        requested window. Designed for use with line/area chart rendering.
+
+        **Bucket sizes by window:**
+        | window | bucket | max buckets |
+        |--------|--------|-------------|
+        | 24h    | 1 hour | 24          |
+        | 7d     | 6 hours | 28         |
+        | 30d    | 1 day  | 30          |
+
+        Buckets with no UP checks have `null` for all response time fields.
+        All buckets for the full window are always returned — even empty ones — so the
+        frontend does not need to handle missing time slots.
+
+        Implemented with PostgreSQL `date_trunc` and conditional aggregates.
+      operationId: getMonitorLatency
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/MonitorId'
+        - $ref: '#/components/parameters/WindowParam'
+      responses:
+        '200':
+          description: Bucketed latency data for charting.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [success, data]
+                properties:
+                  success:
+                    type: boolean
+                    enum: [true]
+                  data:
+                    type: object
+                    required: [monitorId, window, bucketSize, buckets]
+                    properties:
+                      monitorId:
+                        type: string
+                        example: clx1monitor1
+                      window:
+                        $ref: '#/components/schemas/TimeWindow'
+                      bucketSize:
+                        type: string
+                        enum: [1h, 6h, 1d]
+                        example: 1h
+                      buckets:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/LatencyBucket'
+              example:
+                success: true
+                data:
+                  monitorId: clx1monitor1
+                  window: 24h
+                  bucketSize: 1h
+                  buckets:
+                    - bucketStart: "2025-01-15T09:00:00Z"
+                      bucketEnd: "2025-01-15T10:00:00Z"
+                      avgResponseTime: 243
+                      minResponseTime: 180
+                      maxResponseTime: 410
+                      checkCount: 60
+                      upCount: 60
+                    - bucketStart: "2025-01-15T08:00:00Z"
+                      bucketEnd: "2025-01-15T09:00:00Z"
+                      avgResponseTime: null
+                      minResponseTime: null
+                      maxResponseTime: null
+                      checkCount: 60
+                      upCount: 0
+        '400':
+          description: Invalid window parameter.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error:
+                  code: INVALID_WINDOW
+                  message: window must be one of 24h, 7d, 30d
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /monitors/{id}/incidents:
+    get:
+      tags: [Metrics]
+      summary: Get incident history for a monitor
+      description: |
+        Returns paginated incident records for a monitor. Incidents can be filtered
+        by date range or open/resolved state.
+        Results are sorted by `startedAt DESC` by default.
+      operationId: getMonitorIncidents
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/MonitorId'
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/FromParam'
+        - $ref: '#/components/parameters/ToParam'
+        - name: open
+          in: query
+          required: false
+          description: Filter by incident state. true = open only, false = resolved only.
+          schema:
+            type: boolean
+          example: true
+      responses:
+        '200':
+          description: Paginated incident history.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [success, data]
+                properties:
+                  success:
+                    type: boolean
+                    enum: [true]
+                  data:
+                    type: object
+                    required: [items, pagination]
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Incident'
+                      pagination:
+                        $ref: '#/components/schemas/Pagination'
+              example:
+                success: true
+                data:
+                  items:
+                    - id: clxincident1
+                      monitorId: clx1monitor1
+                      startedAt: "2025-01-15T08:30:00Z"
+                      resolvedAt: "2025-01-15T08:45:00Z"
+                      duration: 900
+                      isOpen: false
+                    - id: clxincident2
+                      monitorId: clx1monitor1
+                      startedAt: "2025-01-14T20:00:00Z"
+                      resolvedAt: null
+                      duration: null
+                      isOpen: true
+                  pagination:
+                    page: 1
+                    limit: 20
+                    total: 12
+                    totalPages: 1
+                    hasNext: false
+                    hasPrev: false
+        '400':
+          description: Invalid date range.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error:
+                  code: INVALID_DATE_RANGE
+                  message: from must be before to
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  # ── Public Status Page ────────────────────────────────────────────────────
+
+  /status/{slug}:
+    get:
+      tags: [Status]
+      summary: Get public status page for a monitor
+      description: |
+        Returns public-facing status data for a monitor identified by its slug.
+        **No authentication required.** Safe to share with external stakeholders.
+
+        **Privacy rules:**
+        - The monitor URL is never returned.
+        - The user ID and user email are never returned.
+        - Returns the 10 most recent incidents.
+
+        This endpoint is publicly cacheable. In V2, a `Cache-Control: public, max-age=30`
+        header will be added.
+      operationId: getPublicStatus
+      security: []
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          description: Monitor slug (auto-generated on creation, e.g. `production-api-x7k2`).
+          schema:
+            type: string
+          example: production-api-x7k2
+      responses:
+        '200':
+          description: Public monitor status data.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [success, data]
+                properties:
+                  success:
+                    type: boolean
+                    enum: [true]
+                  data:
+                    $ref: '#/components/schemas/PublicStatusResponse'
+              example:
+                success: true
+                data:
+                  name: Production API
+                  status: UP
+                  lastCheckedAt: "2025-01-15T10:00:00Z"
+                  uptimePercent7d: 99.8
+                  avgResponseTime7d: 231
+                  incidents:
+                    - startedAt: "2025-01-15T08:30:00Z"
+                      resolvedAt: "2025-01-15T08:45:00Z"
+                      duration: 900
+                      isOpen: false
+        '404':
+          description: No monitor found with this slug.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error:
+                  code: MONITOR_NOT_FOUND
+                  message: Monitor not found

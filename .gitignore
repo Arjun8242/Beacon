@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.env
+.turbo/
+.next/
+coverage/
+.env.example
