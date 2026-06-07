@@ -4,7 +4,8 @@
   "main": "src/index.ts",
   "dependencies": {
     "bullmq": "^5.0.0",
-    "ioredis": "^5.0.0"
+    "ioredis": "^5.0.0",
+    "shared": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.0.0"

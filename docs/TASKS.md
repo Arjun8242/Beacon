@@ -29,61 +29,61 @@
 
 #### packages/database — Align Prisma Schema to Design
 
-- [ ] Add `MonitorStatus` and `CheckStatus` enums to `schema.prisma` (replace raw strings) `S`
-- [ ] Add missing Monitor fields: `slug` (unique), `active` (boolean), `lastCheckedAt`, fix `status` to use `MonitorStatus` enum with `PENDING` default `S`
-- [ ] Add missing Check field: `status` (`CheckStatus` enum), rename `isUp` to proper enum usage `S`
-- [ ] Add missing Incident fields: `durationSeconds` `S`
-- [ ] Add `User` field: rename `password` to `passwordHash`, rename `name` to `username` with unique constraint `S`
-- [ ] Fix Monitor index from `@@index([nextCheckAt, status])` to `@@index([active, nextCheckAt])` per design `S`
-- [ ] Add `@@index([monitorId, startedAt])` to Incident model `S`
-- [ ] Add `@@index([userId])` and `@@index([userId, createdAt])` to Monitor model `S`
-- [ ] Run `prisma migrate dev` to generate and apply initial migration `S`
-- [ ] Run `prisma generate` and verify client exports compile `S`
+- [x] Add `MonitorStatus` and `CheckStatus` enums to `schema.prisma` (replace raw strings) `S`
+- [-] Add missing Monitor fields: `slug` (unique), `active` (boolean), `lastCheckedAt`, fix `status` to use `MonitorStatus` enum with `PENDING` default `S`
+- [x] Add missing Check field: `status` (`CheckStatus` enum), rename `isUp` to proper enum usage `S`
+- [x] Add missing Incident fields: `durationSeconds` `S`
+- [x] Add `User` field: rename `password` to `passwordHash` `S`
+- [x] Fix Monitor index from `@@index([nextCheckAt, status])` to `@@index([active, nextCheckAt])` per design `S`
+- [x] Add `@@index([monitorId, startedAt])` to Incident model `S`
+- [x] Add `@@index([userId])` and `@@index([userId, createdAt])` to Monitor model `S`
+- [x] Run `prisma migrate dev` to generate and apply initial migration `S`
+- [x] Run `prisma generate` and verify client exports compile `S`
 
 #### packages/shared — Types, Constants, and Utilities
 
-- [ ] Add `CheckStatus` enum (`UP`, `DEGRADED`, `DOWN`) and `MonitorStatus` update (`PENDING`, `UP`, `DOWN`, `DEGRADED`, `PAUSED`) `S`
-- [ ] Add shared constants: `ALLOWED_INTERVALS`, `DEFAULT_TIMEOUT`, `CONFIRM_DOWN_THRESHOLD` `S`
-- [ ] Implement `determineStatus(statusCode, error)` utility function `S`
-- [ ] Implement `slugify(name)` utility function with random suffix `S`
-- [ ] Implement `calculateUptimePercent(upCount, totalCount)` utility function `S`
-- [ ] Implement `getWindowStart(window: '24h' | '7d' | '30d')` time utility `S`
-- [ ] Add `MonitorCheckJob` type definition for BullMQ job payloads `S`
-- [ ] Update `CreateMonitorSchema` Zod validation: restrict `interval` to `[30, 60, 120, 300, 600]`, remove `method` field `S`
+- [x] Add `CheckStatus` enum (`UP`, `DEGRADED`, `DOWN`) and `MonitorStatus` update (`PENDING`, `UP`, `DOWN`, `DEGRADED`, `PAUSED`) `S`
+- [x] Add shared constants: `ALLOWED_INTERVALS`, `DEFAULT_TIMEOUT`, `CONFIRM_DOWN_THRESHOLD` `S`
+- [x] Implement `determineStatus(statusCode, error)` utility function `S`
+- [x] Implement `slugify(name)` utility function with random suffix `S`
+- [x] Implement `calculateUptimePercent(upCount, totalCount)` utility function `S`
+- [x] Implement `getWindowStart(window: '24h' | '7d' | '30d')` time utility `S`
+- [x] Add `MonitorCheckJob` type definition for BullMQ job payloads `S`
+- [x] Update `CreateMonitorSchema` Zod validation: restrict `interval` to `[30, 60, 120, 300, 600]`, remove `method` field `S`
 
 #### packages/queue — Producer and Job Types
 
-- [ ] Rename queue name constant from `MONITOR_QUEUE` to `MONITOR_CHECKS` per architecture design `S`
-- [ ] Create `producer.ts` with `addCheckJob(payload: MonitorCheckJob)` function using `jobId: monitorId` for deduplication `S`
-- [ ] Add default job options: `attempts: 3`, exponential backoff, `removeOnComplete`, `removeOnFail` `S`
-- [ ] Export `MonitorCheckJob` type and producer from package index `S`
+- [x] Rename queue name constant from `MONITOR_QUEUE` to `MONITOR_CHECKS` per architecture design `S`
+- [x] Create `producer.ts` with `addCheckJob(payload: MonitorCheckJob)` function using `jobId: monitorId` for deduplication `S`
+- [x] Add default job options: `attempts: 3`, exponential backoff, `removeOnComplete`, `removeOnFail` `S`
+- [x] Export `MonitorCheckJob` type and producer from package index `S`
 
 #### packages/database — Env Config
 
-- [ ] Add `JWT_SECRET` and `BCRYPT_COST` to `.env.example` `S`
-- [ ] Add `WORKER_CONCURRENCY` and `SCHEDULER_INTERVAL_MS` to `.env.example` `S`
+- [x] Add `JWT_SECRET` and `BCRYPT_COST` to `.env.example` `S`
+- [x] Add `WORKER_CONCURRENCY` and `SCHEDULER_INTERVAL_MS` to `.env.example` `S`
 
 #### apps/api — Auth System
 
-- [ ] Create `config/env.ts` with Zod-validated environment variables `S`
-- [ ] Create `authService.ts` — `register(email, password)`: hash with bcrypt, create user, sign JWT `M`
-- [ ] Create `authService.ts` — `login(email, password)`: verify credentials, sign JWT, timing-safe on miss `S`
-- [ ] Create `authenticate.ts` middleware — verify JWT, attach `userId` to request `S`
-- [ ] Create `errorHandler.ts` global middleware — handle Zod, Prisma, and generic errors `S`
-- [ ] Create `validate.ts` middleware — generic Zod body validation `S`
-- [ ] Create `routes/auth.ts` — `POST /register`, `POST /login`, `GET /me` `M`
-- [ ] Wire auth routes and middleware into Express app, add `/api/v1` prefix `S`
+- [x] Create `config/env.ts` with Zod-validated environment variables `S`
+- [x] Create `authService.ts` — `register(email, password)`: hash with bcrypt, create user, sign JWT `M`
+- [x] Create `authService.ts` — `login(email, password)`: verify credentials, sign JWT, timing-safe on miss `S`
+- [x] Create `authenticate.ts` middleware — verify JWT, attach `userId` to request `S`
+- [x] Create `errorHandler.ts` global middleware — handle Zod, Prisma, and generic errors `S`
+- [x] Create `validate.ts` middleware — generic Zod body validation `S`
+- [x] Create `routes/auth.ts` — `POST /register`, `POST /login`, `GET /me` `M`
+- [x] Wire auth routes and middleware into Express app, add `/api/v1` prefix `S`
 
 #### apps/api — Monitor CRUD
 
-- [ ] Create `monitorService.ts` — `create(userId, data)`: validate, generate slug, persist `M`
-- [ ] Create `monitorService.ts` — `listByUser(userId, page, limit)`: paginated query `S`
-- [ ] Create `monitorService.ts` — `getById(monitorId, userId)`: ownership check `S`
-- [ ] Create `monitorService.ts` — `update(monitorId, userId, data)`: ownership check, validate `S`
-- [ ] Create `monitorService.ts` — `delete(monitorId, userId)`: ownership check, cascade `S`
-- [ ] Create `monitorService.ts` — `pause(monitorId, userId)` and `resume(monitorId, userId)` `S`
-- [ ] Create `routes/monitors.ts` — all CRUD + pause/resume routes `M`
-- [ ] Wire monitor routes behind `authenticate` middleware `S`
+- [x] Create `monitorService.ts` — `create(userId, data)`: validate, generate slug, persist `M`
+- [x] Create `monitorService.ts` — `listByUser(userId, page, limit)`: paginated query `S`
+- [x] Create `monitorService.ts` — `getById(monitorId, userId)`: ownership check `S`
+- [x] Create `monitorService.ts` — `update(monitorId, userId, data)`: ownership check, validate `S`
+- [x] Create `monitorService.ts` — `delete(monitorId, userId)`: ownership check, cascade `S`
+- [x] Create `monitorService.ts` — `pause(monitorId, userId)` and `resume(monitorId, userId)` `S`
+- [x] Create `routes/monitors.ts` — all CRUD + pause/resume routes `M`
+- [x] Wire monitor routes behind `authenticate` middleware `S`
 
 ---
 

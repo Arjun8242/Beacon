@@ -1,17 +1,28 @@
 import express from 'express';
 import { prisma } from 'database';
+import authRouter from './routes/auth';
+import monitorsRouter from './routes/monitors';
+import { errorHandler } from './errorHandler';
 
 const app = express();
 app.use(express.json());
 
+// Health check
 app.get('/health', async (req, res) => {
   try {
     await prisma.$queryRaw`SELECT 1`;
     res.status(200).json({ status: 'UP', db: 'Connected' });
-  } catch (error) {
+  } catch {
     res.status(500).json({ status: 'DOWN', db: 'Disconnected' });
   }
 });
+
+// API routes
+app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/monitors', monitorsRouter);
+
+// Global error handler (must be last)
+app.use(errorHandler);
 
 const PORT = process.env.API_PORT || 3001;
 app.listen(PORT, () => {

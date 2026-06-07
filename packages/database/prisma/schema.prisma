@@ -7,53 +7,72 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum MonitorStatus {
+  PENDING
+  UP
+  DOWN
+  DEGRADED
+  PAUSED
+}
+
+enum CheckStatus {
+  UP
+  DOWN
+  DEGRADED
+}
+
 model User {
-  id        String    @id @default(uuid())
-  email     String    @unique
-  password  String
-  name      String?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  monitors  Monitor[]
+  id           String    @id @default(uuid())
+  email        String    @unique
+  passwordHash String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  monitors     Monitor[]
 }
 
 model Monitor {
-  id            String    @id @default(uuid())
+  id            String        @id @default(uuid())
   userId        String
-  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   name          String
   url           String
-  method        String    @default("GET")
-  interval      Int       @default(60) // seconds
-  status        String    @default("UP") // UP, DOWN, PAUSED
-  nextCheckAt   DateTime  @default(now())
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  method        String        @default("GET")
+  interval      Int           @default(60) // seconds
+  active        Boolean       @default(true)
+  status        MonitorStatus @default(PENDING)
+  lastCheckedAt DateTime?
+  nextCheckAt   DateTime      @default(now())
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
   checks        Check[]
   incidents     Incident[]
 
-  @@index([nextCheckAt, status])
+  @@index([active, nextCheckAt])
+  @@index([userId])
+  @@index([userId, createdAt])
 }
 
 model Check {
-  id           String   @id @default(uuid())
+  id           String      @id @default(uuid())
   monitorId    String
-  monitor      Monitor  @relation(fields: [monitorId], references: [id], onDelete: Cascade)
+  monitor      Monitor     @relation(fields: [monitorId], references: [id], onDelete: Cascade)
+  status       CheckStatus
   statusCode   Int?
-  responseTime Int?     // ms
-  isUp         Boolean
-  errorMessage String?
-  checkedAt    DateTime @default(now())
+  responseTime Int? // ms
+  error        String?
+  checkedAt    DateTime    @default(now())
 
   @@index([monitorId, checkedAt])
 }
 
 model Incident {
-  id          String    @id @default(uuid())
-  monitorId   String
-  monitor     Monitor   @relation(fields: [monitorId], references: [id], onDelete: Cascade)
-  startedAt   DateTime  @default(now())
-  resolvedAt  DateTime?
-  errorType   String?
-  description String?
+  id              String    @id @default(uuid())
+  monitorId       String
+  monitor         Monitor   @relation(fields: [monitorId], references: [id], onDelete: Cascade)
+  startedAt       DateTime  @default(now())
+  resolvedAt      DateTime?
+  durationSeconds Int?
+  createdAt       DateTime  @default(now())
+
+  @@index([monitorId, startedAt])
 }

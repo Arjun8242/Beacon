@@ -53,17 +53,22 @@ uptime-monitor/
 * Designed REST API endpoints, validation rules, and error handling.
 * Scaffolded the Turbo/pnpm monorepo structure with all `apps` and `packages`.
 * Initialized `packages/queue`, `packages/database`, `apps/worker`, and `apps/scheduler`.
+* Aligned Prisma models and enums, applied initial migration, and generated Prisma client.
+* **[M1]** Implemented shared types, constants, and utilities in `packages/shared`.
+* **[M1]** Configured shared BullMQ queues and Redis producer logic in `packages/queue`.
+* **[M1]** Built full Express Auth System in `apps/api` (register, login, JWT middleware, error handling).
+* **[M1]** Built full Monitor CRUD endpoints in `apps/api` (create, list, get, update, delete, pause, resume).
 
 ## 8. Current Focus
-* Defining the Prisma schema in `packages/database/prisma/schema.prisma`.
-* Configuring the shared BullMQ queues and Redis connections in `packages/queue`.
-* Setting up the entry points for the `apps/worker` and `apps/scheduler` services.
+* Building the `apps/scheduler` service to run a node-cron tick and enqueue checks.
+* Building the `apps/worker` service to execute HTTP probes and persist results.
+* Setting up local development environment with Docker Compose for end-to-end integration testing.
 
 ## 9. Current Phase
-* **Phase:** Transitioning from M1 (Foundation) to M2 (Core Check Loop)
+* **Phase:** Milestone 2 (Core Check Loop) - Execution
 
 ## 10. Next Milestone
-* **M2 — Core Check Loop:** Implement the `scheduler` service, configure the BullMQ queue (`packages/queue`), and build the `worker` service to execute HTTP probes and persist results.
+* **M3 — Reliability Layer:** Add Redis failure counters, and incident state transitions for confirm-down logic.
 
 ## 11. Future Milestones
 * **M3 — Reliability Layer:** Add BullMQ retries, Redis failure counters, and incident state transitions.
