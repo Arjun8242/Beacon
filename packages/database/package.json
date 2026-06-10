@@ -4,13 +4,17 @@
   "main": "src/index.ts",
   "scripts": {
     "db:generate": "prisma generate",
-    "db:push": "prisma db push"
+    "db:push": "prisma db push",
+    "db:seed": "ts-node src/seed.ts"
   },
   "dependencies": {
-    "@prisma/client": "^5.0.0"
+    "@prisma/client": "^5.0.0",
+    "bcryptjs": "^2.4.3"
   },
   "devDependencies": {
     "prisma": "^5.0.0",
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "ts-node": "^10.9.0",
+    "@types/bcryptjs": "^2.4.6"
   }
 }

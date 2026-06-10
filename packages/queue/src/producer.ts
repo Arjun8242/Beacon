@@ -1,10 +1,10 @@
 import { Queue } from 'bullmq';
-import { redisClient } from './redis';
-import { QUEUE_NAMES } from './index';
+import { redisConnection } from './redis';
+import { QUEUE_NAMES } from './constants';
 import { MonitorCheckJob } from 'shared';
 
 export const monitorQueue = new Queue<MonitorCheckJob>(QUEUE_NAMES.MONITOR_CHECKS, {
-  connection: redisClient,
+  connection: redisConnection,
   defaultJobOptions: {
     attempts: 3,
     backoff: {

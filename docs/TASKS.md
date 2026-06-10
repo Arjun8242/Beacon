@@ -91,28 +91,28 @@
 
 #### apps/scheduler — Scheduler Service
 
-- [ ] Create `config/env.ts` with validated scheduler environment vars `S`
-- [ ] Implement scheduler tick: query due monitors (`active=true AND nextCheckAt <= NOW()`) `M`
-- [ ] Enqueue one BullMQ job per due monitor via `addCheckJob()` from `packages/queue` `S`
-- [ ] Update `monitor.nextCheckAt = NOW() + interval` after enqueueing `S`
-- [ ] Replace `setInterval` with `node-cron` running every 30 seconds `S`
-- [ ] Add error handling: graceful recovery on Redis/PostgreSQL connection failure `S`
-- [ ] Add structured JSON logging for tick stats (monitors found, jobs enqueued) `S`
+- [x] Create `config/env.ts` with validated scheduler environment vars `S`
+- [x] Implement scheduler tick: query due monitors (`active=true AND nextCheckAt <= NOW()`) `M`
+- [x] Enqueue one BullMQ job per due monitor via `addCheckJob()` from `packages/queue` `S`
+- [x] Update `monitor.nextCheckAt = NOW() + interval` after enqueueing `S`
+- [x] Replace `setInterval` with `node-cron` running every 30 seconds `S`
+- [x] Add error handling: graceful recovery on Redis/PostgreSQL connection failure `S`
+- [x] Add structured JSON logging for tick stats (monitors found, jobs enqueued) `S`
 
 #### apps/worker — Check Execution
 
-- [ ] Create `config/env.ts` with validated worker environment vars (concurrency, timeout) `S`
-- [ ] Create `processor/checkRunner.ts` — HTTP GET with `AbortController` timeout, measure response time `M`
-- [ ] Create `processor/resultPersist.ts` — persist `Check` record to PostgreSQL `S`
-- [ ] Create `processor/incidentDetect.ts` — stub with open/resolve logic placeholder `S`
-- [ ] Wire processor into BullMQ Worker with configurable concurrency `S`
-- [ ] Update `monitor.status` and `monitor.lastCheckedAt` after each check `S`
-- [ ] Add structured JSON logging for job processing (monitorId, status, responseTime) `S`
+- [x] Create `config/env.ts` with validated worker environment vars (concurrency, timeout) `S`
+- [x] Create `processor/checkRunner.ts` — HTTP GET with `AbortController` timeout, measure response time `M`
+- [x] Create `processor/resultPersist.ts` — persist `Check` record to PostgreSQL `S`
+- [x] Create `processor/incidentDetect.ts` — stub with open/resolve logic placeholder `S`
+- [x] Wire processor into BullMQ Worker with configurable concurrency `S`
+- [x] Update `monitor.status` and `monitor.lastCheckedAt` after each check `S`
+- [x] Add structured JSON logging for job processing (monitorId, status, responseTime) `S`
 
 #### Integration Verification
 
-- [ ] Start Docker Compose (PostgreSQL + Redis), run migration, seed a test user and monitor `M`
-- [ ] Manually verify: scheduler enqueues jobs → worker processes → check records appear in DB `M`
+- [x] Start Docker Compose (PostgreSQL + Redis), run migration, seed a test user and monitor `M`
+- [x] Manually verify: scheduler enqueues jobs → worker processes → check records appear in DB `M`
 
 ---
 
@@ -122,13 +122,13 @@
 
 #### apps/worker — Incident Detection
 
-- [ ] Create `cache/failureCounter.ts` — Redis `INCR`/`DEL`/`GET` for `failures:{monitorId}` with TTL `S`
-- [ ] Create `cache/statusCache.ts` — Redis `GET`/`SET` for `status:{monitorId}` with TTL `S`
-- [ ] Implement confirm-down logic in `incidentDetect.ts`: increment counter on non-UP, open incident when threshold reached `M`
-- [ ] Implement incident resolution in `incidentDetect.ts`: on UP check, resolve open incident, calculate `durationSeconds` `M`
-- [ ] Enforce single open incident per monitor constraint (query before create) `S`
-- [ ] Update Redis status cache after each check for dashboard fast reads `S`
-- [ ] Verify BullMQ retry config handles infrastructure failures (DB down, Redis blip) `S`
+- [x] Create `cache/failureCounter.ts` — Redis `INCR`/`DEL`/`GET` for `failures:{monitorId}` with TTL `S`
+- [x] Create `cache/statusCache.ts` — Redis `GET`/`SET` for `status:{monitorId}` with TTL `S`
+- [x] Implement confirm-down logic in `incidentDetect.ts`: increment counter on non-UP, open incident when threshold reached `M`
+- [x] Implement incident resolution in `incidentDetect.ts`: on UP check, resolve open incident, calculate `durationSeconds` `M`
+- [x] Enforce single open incident per monitor constraint (query before create) `S`
+- [x] Update Redis status cache after each check for dashboard fast reads `S`
+- [x] Verify BullMQ retry config handles infrastructure failures (DB down, Redis blip) `S`
 
 ### Milestone 4: Metrics API
 
@@ -212,6 +212,10 @@
 - [ ] Write `Dockerfile` for `apps/web` `S`
 - [ ] Create `docker-compose.prod.yml` with all services, networks, health checks `M`
 - [ ] Verify full system boot with `docker compose up` in under 3 minutes `M`
+
+#### Database Management
+
+- [ ] Create `jobs/dataRetention.ts` — cron job running daily to delete `Check` records older than 30 days `S`
 
 #### Documentation
 
