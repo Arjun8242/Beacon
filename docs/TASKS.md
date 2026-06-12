@@ -134,23 +134,23 @@
 
 #### apps/api — Metrics Endpoints
 
-- [ ] Create `metricsService.ts` — `getStats(monitorId, window)`: uptime %, total checks, avg response time `M`
-- [ ] Create `metricsService.ts` — `getChecks(monitorId, window, page, limit)`: paginated check history `S`
-- [ ] Create `metricsService.ts` — `getIncidents(monitorId, page, limit)`: paginated incident history `S`
-- [ ] Create `metricsService.ts` — `getLatency(monitorId, window)`: bucketed avg/min/max by time window `M`
-- [ ] Create `routes/metrics.ts` — `GET /monitors/:id/stats`, `/checks`, `/incidents`, `/latency` `M`
-- [ ] Wire metrics routes behind `authenticate` middleware with ownership check `S`
+- [x] Create `metricsService.ts` — `getStats(monitorId, window)`: uptime %, total checks, avg response time `M`
+- [x] Create `metricsService.ts` — `getChecks(monitorId, window, page, limit)`: paginated check history `S`
+- [x] Create `metricsService.ts` — `getIncidents(monitorId, page, limit)`: paginated incident history `S`
+- [x] Create `metricsService.ts` — `getLatency(monitorId, window)`: bucketed avg/min/max by time window `M`
+- [x] Create `routes/metrics.ts` — `GET /monitors/:id/stats`, `/checks`, `/incidents`, `/latency` `M`
+- [x] Wire metrics routes behind `authenticate` middleware with ownership check `S`
 
 #### apps/api — Dashboard Endpoint
 
-- [ ] Create `dashboardService.ts` — aggregate summary (total, active, up, down, degraded, paused monitors) `M`
-- [ ] Include recent incidents (last 5) and per-monitor 24h uptime/avg response time `M`
-- [ ] Create `routes/dashboard.ts` — `GET /dashboard` `S`
+- [x] Create `dashboardService.ts` — aggregate summary (total, active, up, down, degraded, paused monitors) `M`
+- [x] Include recent incidents (last 5) and per-monitor 24h uptime/avg response time `M`
+- [x] Create `routes/dashboard.ts` — `GET /dashboard` `S`
 
 #### apps/api — Public Status Page Endpoint
 
-- [ ] Create `statusService.ts` — `getBySlug(slug)`: public data (name, status, uptime 7d, recent incidents) `M`
-- [ ] Create `routes/status.ts` — `GET /status/:slug` (no auth required) `S`
+- [x] Create `statusService.ts` — `getBySlug(slug)`: public data (name, status, uptime 7d, recent incidents) `M`
+- [x] Create `routes/status.ts` — `GET /status/:slug` (no auth required) `S`
 
 ---
 

@@ -26,12 +26,13 @@ export async function create(userId: string, data: CreateMonitorDTO) {
     data: {
       userId,
       name: parsed.name,
+      slug,
       url: parsed.url,
       interval: parsed.interval,
     },
   });
 
-  return { ...monitor, slug };
+  return monitor;
 }
 
 export async function listByUser(userId: string, page: number, limit: number) {

@@ -2,6 +2,9 @@ import express from 'express';
 import { prisma } from 'database';
 import authRouter from './routes/auth';
 import monitorsRouter from './routes/monitors';
+import metricsRouter from './routes/metrics';
+import dashboardRouter from './routes/dashboard';
+import statusRouter from './routes/status';
 import { errorHandler } from './errorHandler';
 
 const app = express();
@@ -20,6 +23,9 @@ app.get('/health', async (req, res) => {
 // API routes
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/monitors', monitorsRouter);
+app.use('/api/v1/monitors/:id', metricsRouter);
+app.use('/api/v1/dashboard', dashboardRouter);
+app.use('/api/v1/status', statusRouter);
 
 // Global error handler (must be last)
 app.use(errorHandler);

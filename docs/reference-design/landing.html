@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Beacon — Infrastructure as Ocean</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg-deep:#091624;
+    --bg-deep-2:#0d2236;
+    --parchment:#f3e8cb;
+    --parchment-edge:#e6d3a4;
+    --parchment-shadow:#cdb985;
+    --ink:#3a2c18;
+    --ink-soft:#6e5a3c;
+    --gold:#c9a35c;
+    --rope:#b88a4f;
+    --lh-red:#bf3b2c;
+    --lh-white:#f3ece0;
+    --beacon-green:#5fae6e;
+    --beacon-green-bright:#a8e6b4;
+    --beam:#fff3cf;
+    --calm:#5fae6e;
+    --rough:#e0a23c;
+    --storm:#d9534f;
+    --harbor:#46b3a8;
+    --text-secondary:#a9bbcd;
+  }
+  *{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  html,body{ margin:0; }
+  body{
+    font-family:'Inter', system-ui, sans-serif;
+    background:
+      radial-gradient(ellipse at 50% -10%, #16344e 0%, var(--bg-deep) 55%, #060e18 100%);
+    color:var(--parchment);
+    overflow-x:hidden;
+  }
+  a{ color:inherit; }
+  img,svg{ display:block; }
+
+  .wrap{ max-width:1240px; margin:0 auto; padding:0 2rem; }
+
+  /* ===== Starfield ===== */
+  .stars{
+    position:absolute;
+    top:0; left:0; right:0;
+    height:900px;
+    pointer-events:none;
+    z-index:0;
+    background-image:
+      radial-gradient(1.5px 1.5px at 6% 10%, var(--parchment) 50%, transparent 51%),
+      radial-gradient(1px 1px at 18% 24%, var(--parchment) 50%, transparent 51%),
+      radial-gradient(2px 2px at 30% 6%, var(--parchment) 50%, transparent 51%),
+      radial-gradient(1px 1px at 44% 18%, var(--parchment) 50%, transparent 51%),
+      radial-gradient(1.5px 1.5px at 60% 8%, var(--parchment) 50%, transparent 51%),
+      radial-gradient(1px 1px at 74% 22%, var(--parchment) 50%, transparent 51%),
+      radial-gradient(2px 2px at 88% 12%, var(--parchment) 50%, transparent 51%),
+      radial-gradient(1px 1px at 96% 30%, var(--parchment) 50%, transparent 51%),
+      radial-gradient(1.5px 1.5px at 12% 40%, var(--parchment) 50%, transparent 51%),
+      radial-gradient(1px 1px at 52% 38%, var(--parchment) 50%, transparent 51%),
+      radial-gradient(1px 1px at 82% 44%, var(--parchment) 50%, transparent 51%);
+    background-repeat:no-repeat;
+    opacity:.5;
+  }
+  .star{
+    position:absolute;
+    width:3px; height:3px;
+    border-radius:50%;
+    background:var(--parchment);
+    box-shadow:0 0 6px 1px rgba(243,232,203,.6);
+    animation:twinkle 3.6s ease-in-out infinite;
+    z-index:0;
+  }
+  @keyframes twinkle{
+    0%,100%{ opacity:.25; transform:scale(.8); }
+    50%{ opacity:1; transform:scale(1.15); }
+  }
+
+  /* ===== Nav ===== */
+  .nav{
+    position:relative;
+    z-index:5;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:1.5rem 0;
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:.6rem;
+    font-family:'Cinzel', serif;
+    font-weight:700;
+    font-size:1.25rem;
+    letter-spacing:.12em;
+  }
+  .brand svg{ width:26px; height:26px; color:var(--gold); }
+  .nav-links{ display:flex; align-items:center; gap:2rem; font-size:.88rem; }
+  .nav-links a{ text-decoration:none; opacity:.82; transition:opacity .2s ease; }
+  .nav-links a:hover{ opacity:1; }
+  .nav-cta{
+    border:1px solid var(--gold);
+    border-radius:6px;
+    padding:.5rem 1.1rem;
+    color:var(--gold) !important;
+    opacity:1 !important;
+  }
+  .nav-cta:hover{ background:var(--gold); color:var(--bg-deep) !important; }
+
+  @media (max-width:760px){
+    .nav-links a:not(.nav-cta){ display:none; }
+  }
+
+  /* ===== Hero ===== */
+  .hero{
+    position:relative;
+    z-index:2;
+    display:grid;
+    grid-template-columns:1.1fr 1fr;
+    gap:3rem;
+    align-items:center;
+    padding:3rem 0 4.5rem;
+  }
+  .eyebrow{
+    font-size:.72rem;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    color:var(--gold);
+    margin:0 0 1rem;
+  }
+  .hero h1{
+    font-family:'Cinzel', serif;
+    font-weight:700;
+    font-size:3.4rem;
+    line-height:1.08;
+    letter-spacing:.01em;
+    margin:0 0 1rem;
+  }
+  .hero .lead{
+    font-size:1.15rem;
+    color:var(--text-secondary);
+    margin:0 0 2rem;
+    max-width:30rem;
+  }
+  .hero-actions{ display:flex; align-items:center; gap:1.25rem; flex-wrap:wrap; }
+
+  .btn-primary{
+    display:inline-flex;
+    align-items:center;
+    gap:.7rem;
+    border:1px solid var(--rope);
+    border-radius:8px;
+    background:linear-gradient(180deg, #3f6b4a, #294a33);
+    color:var(--beacon-green-bright);
+    font-family:'Cinzel', serif;
+    font-weight:600;
+    font-size:.98rem;
+    letter-spacing:.1em;
+    padding:.85rem 1.5rem;
+    cursor:pointer;
+    text-decoration:none;
+    transition:transform .15s ease, box-shadow .35s ease;
+    box-shadow:0 0 10px 1px rgba(95,174,110,.3);
+  }
+  .btn-primary:hover{
+    animation:harbor-hum 1.7s ease-in-out infinite;
+  }
+  .btn-primary:hover .wheel-svg{
+    animation:wheel-spin 3.2s linear infinite;
+  }
+  .btn-primary:active{ transform:scale(.98); }
+  .wheel-svg{ display:inline-flex; color:var(--gold); transition:color .3s ease; }
+  .btn-primary:hover .wheel-svg{ color:var(--beacon-green-bright); }
+
+  @keyframes wheel-spin{ from{ transform:rotate(0deg); } to{ transform:rotate(360deg); } }
+  @keyframes harbor-hum{
+    0%,100%{ box-shadow:0 0 10px 1px rgba(95,174,110,.35); }
+    50%{ box-shadow:0 0 26px 8px rgba(95,174,110,.55); }
+  }
+
+  .btn-text{
+    font-size:.92rem;
+    text-decoration:none;
+    color:var(--parchment);
+    border-bottom:1px solid rgba(201,163,92,.4);
+    padding-bottom:2px;
+    transition:border-color .2s ease;
+  }
+  .btn-text:hover{ border-color:var(--gold); }
+
+  /* ===== Hero visual ===== */
+  .hero-visual{
+    position:relative;
+    aspect-ratio:1/1;
+    max-height:420px;
+    border-radius:14px;
+    border:1px solid rgba(201,163,92,.18);
+    background:
+      radial-gradient(ellipse at 30% 20%, rgba(95,174,110,.08), transparent 55%),
+      linear-gradient(180deg, #0c2236, #061320);
+    overflow:hidden;
+  }
+  .radar-grid{
+    position:absolute; inset:0;
+    background-image:
+      linear-gradient(rgba(201,163,92,.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(201,163,92,.08) 1px, transparent 1px);
+    background-size:40px 40px;
+  }
+  .beam-pivot{
+    position:absolute;
+    top:18%;
+    left:24%;
+    width:0; height:0;
+    transform-origin:50% 100%;
+    animation:sweep 16s ease-in-out infinite;
+    z-index:1;
+  }
+  .beam{
+    position:absolute;
+    bottom:0;
+    left:-260px;
+    width:520px;
+    height:520px;
+    background:linear-gradient(to top, rgba(255,243,207,.35), rgba(255,243,207,0) 72%);
+    clip-path:polygon(50% 100%, 18% 0%, 82% 0%);
+    mix-blend-mode:screen;
+    pointer-events:none;
+  }
+  @keyframes sweep{
+    0%,100%{ transform:rotate(-30deg); }
+    50%{ transform:rotate(34deg); }
+  }
+  .hero-lighthouse{
+    position:absolute;
+    top:6%;
+    left:8%;
+    width:34%;
+    z-index:2;
+  }
+  .radar-circle{
+    position:absolute;
+    right:8%; bottom:14%;
+    width:46%;
+    aspect-ratio:1/1;
+    border-radius:50%;
+    border:1px solid rgba(201,163,92,.3);
+    overflow:hidden;
+    z-index:1;
+  }
+  .radar-circle::before, .radar-circle::after{
+    content:"";
+    position:absolute;
+    border:1px solid rgba(201,163,92,.18);
+    border-radius:50%;
+  }
+  .radar-circle::before{ inset:18%; }
+  .radar-circle::after{ inset:36%; }
+  .radar-sweep{
+    position:absolute;
+    inset:0;
+    background:conic-gradient(from 0deg, rgba(95,174,110,.55), transparent 70deg, transparent 360deg);
+    animation:radar-spin 6s linear infinite;
+  }
+  @keyframes radar-spin{ to{ transform:rotate(360deg); } }
+  .radar-blip{
+    position:absolute;
+    width:6px; height:6px;
+    border-radius:50%;
+    background:var(--beacon-green-bright);
+    box-shadow:0 0 6px 1px rgba(168,230,180,.7);
+    animation:blip-pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes blip-pulse{
+    0%,100%{ opacity:.4; transform:scale(.8); }
+    50%{ opacity:1; transform:scale(1.3); }
+  }
+  .watchtower-card{
+    position:absolute;
+    left:6%; bottom:6%;
+    background:var(--parchment);
+    color:var(--ink);
+    border-radius:6px;
+    padding:.65rem .9rem;
+    font-size:.74rem;
+    line-height:1.5;
+    box-shadow:0 6px 18px rgba(0,0,0,.35);
+    z-index:3;
+    max-width:62%;
+  }
+  .watchtower-card .wt-title{
+    font-family:'Cinzel', serif;
+    font-weight:700;
+    letter-spacing:.08em;
+    font-size:.7rem;
+    margin:0;
+    color:var(--ink);
+  }
+  .watchtower-card .wt-sub{ margin:.15rem 0 0; color:var(--ink-soft); }
+
+  @media (max-width:900px){
+    .hero{ grid-template-columns:1fr; padding-top:1.5rem; }
+    .hero h1{ font-size:2.4rem; }
+    .hero-visual{ max-height:340px; }
+  }
+
+  /* ===== Journey ===== */
+  .journey{
+    position:relative;
+    z-index:2;
+    padding:1rem 0 4.5rem;
+  }
+  .section-head{ text-align:center; margin-bottom:2.5rem; }
+  .section-head .eyebrow{ justify-content:center; display:flex; }
+  .section-head h2{
+    font-family:'Cinzel', serif;
+    font-size:1.7rem;
+    letter-spacing:.06em;
+    margin:0;
+    font-weight:700;
+  }
+  .section-head p{ color:var(--text-secondary); margin:.5rem auto 0; max-width:34rem; font-size:.95rem; }
+
+  .journey-track{
+    display:flex;
+    align-items:stretch;
+    gap:0;
+  }
+  .stage{
+    flex:1;
+    background:rgba(255,255,255,.02);
+    border:1px solid rgba(201,163,92,.14);
+    border-radius:12px;
+    padding:1.5rem 1.25rem;
+    text-align:center;
+    opacity:0;
+    transform:translateY(16px);
+    transition:opacity .6s ease, transform .6s ease;
+  }
+  .stage.in-view{ opacity:1; transform:translateY(0); }
+  .stage .stage-icon{
+    width:64px; height:64px;
+    margin:0 auto 1rem;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .stage .stage-icon svg{ width:100%; height:100%; }
+  .stage h3{ font-size:1rem; margin:0 0 .15rem; font-weight:600; }
+  .stage .stage-sub{
+    font-size:.7rem;
+    text-transform:uppercase;
+    letter-spacing:.14em;
+    margin:0 0 .6rem;
+    font-weight:600;
+  }
+  .stage p{ font-size:.85rem; color:var(--text-secondary); margin:0; line-height:1.6; }
+  .stage.calm .stage-sub, .stage.calm .ship-hull{ color:var(--calm); }
+  .stage.rough .stage-sub, .stage.rough .ship-hull{ color:var(--rough); }
+  .stage.storm .stage-sub, .stage.storm .ship-hull{ color:var(--storm); }
+  .stage.harbor .stage-sub, .stage.harbor .ship-hull{ color:var(--harbor); }
+
+  .ship-bob{ animation:bob 3.6s ease-in-out infinite; transform-origin:50% 80%; }
+  .stage.rough .ship-bob{ animation-duration:2.4s; }
+  .stage.storm .ship-bob{ animation:bob-storm 1.4s ease-in-out infinite; }
+  @keyframes bob{
+    0%,100%{ transform:translateY(0) rotate(0deg); }
+    50%{ transform:translateY(-4px) rotate(-2deg); }
+  }
+  @keyframes bob-storm{
+    0%,100%{ transform:translateY(0) rotate(-3deg); }
+    50%{ transform:translateY(-3px) rotate(3deg); }
+  }
+  .sos-flash{ animation:flash 1.1s ease-in-out infinite; }
+  @keyframes flash{ 0%,100%{ opacity:1; } 50%{ opacity:.25; } }
+
+  .connector{
+    flex:none;
+    width:48px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+  }
+  .connector::before{
+    content:"";
+    position:absolute;
+    left:0; right:0; top:50%;
+    border-top:2px dotted rgba(201,163,92,.35);
+  }
+  .connector .signal{
+    position:absolute;
+    top:50%;
+    left:0;
+    width:8px; height:8px;
+    margin-top:-4px;
+    border-radius:50%;
+    background:var(--gold);
+    box-shadow:0 0 6px 1px rgba(201,163,92,.6);
+    animation:travel 4.5s linear infinite;
+  }
+  .connector:nth-child(4) .signal{ animation-delay:1.1s; }
+  .connector:nth-child(6) .signal{ animation-delay:2.2s; }
+  @keyframes travel{
+    0%{ left:0; opacity:0; }
+    8%{ opacity:1; }
+    92%{ opacity:1; }
+    100%{ left:calc(100% - 8px); opacity:0; }
+  }
+
+  @media (max-width:900px){
+    .journey-track{ flex-direction:column; }
+    .connector{ width:auto; height:32px; }
+    .connector::before{ left:50%; right:auto; top:0; bottom:0; border-top:none; border-left:2px dotted rgba(201,163,92,.35); }
+    .connector .signal{ left:50%; top:0; margin-left:-4px; margin-top:0; animation-name:travel-v; }
+    @keyframes travel-v{
+      0%{ top:0; opacity:0; }
+      8%{ opacity:1; }
+      92%{ opacity:1; }
+      100%{ top:calc(100% - 8px); opacity:0; }
+    }
+  }
+
+  /* ===== Intel panels ===== */
+  .intel{ position:relative; z-index:2; padding-bottom:4.5rem; }
+  .intel-grid{
+    display:grid;
+    grid-template-columns:repeat(3, minmax(0,1fr));
+    gap:1.25rem;
+  }
+  .panel{
+    background:var(--parchment);
+    color:var(--ink);
+    border-radius:10px;
+    padding:1.25rem 1.25rem 1.4rem;
+    box-shadow:0 14px 30px -16px rgba(0,0,0,.5);
+    opacity:0;
+    transform:translateY(16px);
+    transition:opacity .6s ease, transform .6s ease;
+  }
+  .panel.in-view{ opacity:1; transform:translateY(0); }
+  .panel h3{
+    font-family:'Cinzel', serif;
+    font-size:.95rem;
+    letter-spacing:.08em;
+    margin:0 0 .8rem;
+    font-weight:700;
+  }
+  .panel .panel-caption{
+    font-size:.74rem;
+    color:var(--ink-soft);
+    margin:.7rem 0 0;
+    line-height:1.5;
+  }
+  .panel-visual{
+    position:relative;
+    background:#0d2236;
+    border-radius:6px;
+    overflow:hidden;
+    height:140px;
+  }
+
+  /* storm map */
+  .storm-dot-grid{
+    position:absolute; inset:0;
+    background-image:radial-gradient(rgba(201,163,92,.25) 1px, transparent 1.2px);
+    background-size:14px 14px;
+  }
+  .storm-cell{
+    position:absolute;
+    width:34px; height:34px;
+    border-radius:50%;
+    background:rgba(217,83,79,.35);
+  }
+  .storm-cell::before{
+    content:"";
+    position:absolute; inset:0;
+    border-radius:50%;
+    border:1px solid rgba(217,83,79,.6);
+    animation:radar-pulse 2.6s ease-out infinite;
+  }
+  .storm-cell.delay::before{ animation-delay:1.1s; }
+  @keyframes radar-pulse{
+    0%{ transform:scale(.6); opacity:.9; }
+    100%{ transform:scale(2.4); opacity:0; }
+  }
+  .storm-label{
+    position:absolute;
+    font-size:.62rem;
+    font-weight:600;
+    letter-spacing:.08em;
+    color:var(--lh-white);
+    background:rgba(217,83,79,.85);
+    padding:.05rem .35rem;
+    border-radius:3px;
+  }
+
+  /* response chart */
+  .chart-svg{ width:100%; height:100%; }
+  .chart-scan{
+    position:absolute;
+    top:0; bottom:0;
+    width:60px;
+    background:linear-gradient(90deg, transparent, rgba(95,174,110,.22), transparent);
+    animation:scan 5s linear infinite;
+  }
+  @keyframes scan{
+    0%{ left:-60px; }
+    100%{ left:100%; }
+  }
+
+  /* harbor map */
+  .harbor-boat{
+    position:absolute;
+    width:14px; height:14px;
+    color:var(--gold);
+    offset-path:path('M30,110 L30,30 L190,30 L190,90');
+    offset-rotate:0deg;
+    animation:sail 9s linear infinite;
+  }
+  @keyframes sail{
+    0%{ offset-distance:0%; }
+    100%{ offset-distance:100%; }
+  }
+
+  @media (max-width:900px){
+    .intel-grid{ grid-template-columns:1fr; }
+  }
+
+  /* ===== CTA ===== */
+  .cta{
+    position:relative;
+    z-index:2;
+    text-align:center;
+    padding:3rem 0 5rem;
+    border-top:1px solid rgba(201,163,92,.14);
+  }
+  .cta h2{
+    font-family:'Cinzel', serif;
+    font-size:1.8rem;
+    letter-spacing:.06em;
+    margin:0 0 .6rem;
+  }
+  .cta p{ color:var(--text-secondary); margin:0 0 1.75rem; }
+  .cta .btn-primary{ font-size:1.05rem; padding:1rem 2rem; }
+
+  /* ===== Footer ===== */
+  .site-footer{
+    position:relative; z-index:2;
+    border-top:1px solid rgba(201,163,92,.14);
+    padding:1.75rem 0;
+    text-align:center;
+    font-size:.78rem;
+    color:var(--text-secondary);
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .beam-pivot, .star, .radar-sweep, .radar-blip, .signal, .ship-bob, .storm-cell::before, .chart-scan, .harbor-boat, .sos-flash{
+      animation:none !important;
+    }
+    html{ scroll-behavior:auto; }
+    .stage, .panel{ opacity:1; transform:none; transition:none; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="stars" aria-hidden="true"></div>
+  <div class="star" style="top:5%; left:34%; animation-delay:0s;" aria-hidden="true"></div>
+  <div class="star" style="top:11%; left:62%; animation-delay:.9s;" aria-hidden="true"></div>
+  <div class="star" style="top:3%; left:50%; animation-delay:1.8s;" aria-hidden="true"></div>
+  <div class="star" style="top:18%; left:8%; animation-delay:2.5s;" aria-hidden="true"></div>
+
+  <div class="wrap">
+    <header class="nav">
+      <div class="brand">
+        <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M16 36h8l-1-6h-6z" fill="currentColor" opacity=".5"/>
+          <path d="M14 30h12l-2-18h-8z" fill="currentColor"/>
+          <rect x="15" y="18" width="10" height="3" fill="var(--lh-red)"/>
+          <rect x="16" y="11" width="8" height="6" fill="currentColor" opacity=".5"/>
+          <path d="M14 11l6-7 6 7z" fill="var(--lh-red)"/>
+        </svg>
+        BEACON
+      </div>
+      <nav class="nav-links">
+        <a href="#journey">Live status</a>
+        <a href="#intel">Pricing</a>
+        <a href="#">Sign in</a>
+        <a href="#cta" class="nav-cta">Deploy the Beacon</a>
+      </nav>
+    </header>
+
+    <!-- ===== Hero ===== -->
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">— Beacon uptime · the watchtower</p>
+        <h1>Infrastructure<br>as ocean.</h1>
+        <p class="lead">Know your fleet, before the storm. Beacon watches every vessel in your stack and signals the moment the water turns rough.</p>
+        <div class="hero-actions">
+          <a href="#cta" class="btn-primary">
+            <span class="wheel-svg" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="30" cy="30" r="21" stroke="currentColor" stroke-width="3"/>
+                <circle cx="30" cy="30" r="5" fill="currentColor"/>
+                <g stroke="currentColor" stroke-width="3" stroke-linecap="round">
+                  <line x1="30" y1="9" x2="30" y2="51"/>
+                  <line x1="9" y1="30" x2="51" y2="30"/>
+                  <line x1="15" y1="15" x2="45" y2="45"/>
+                  <line x1="45" y1="15" x2="15" y2="45"/>
+                </g>
+              </svg>
+            </span>
+            Deploy the Beacon
+          </a>
+          <a href="#journey" class="btn-text">Explore live fleet</a>
+        </div>
+      </div>
+
+      <div class="hero-visual">
+        <div class="radar-grid" aria-hidden="true"></div>
+
+        <div class="beam-pivot" aria-hidden="true">
+          <div class="beam"></div>
+        </div>
+        <svg class="hero-lighthouse" viewBox="0 0 150 200" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Lighthouse with a slowly sweeping beam">
+          <path d="M50 175 L65 90 L85 90 L100 175 Z" fill="var(--lh-white)"/>
+          <rect x="58" y="150" width="34" height="11" fill="var(--lh-red)"/>
+          <rect x="61" y="123" width="28" height="11" fill="var(--lh-red)"/>
+          <rect x="64" y="96" width="22" height="11" fill="var(--lh-red)"/>
+          <rect x="55" y="84" width="40" height="7" fill="#2c3e30"/>
+          <rect x="62" y="55" width="26" height="30" fill="#0d2236" stroke="var(--lh-white)" stroke-width="3"/>
+          <path d="M62 55 L75 36 L88 55 Z" fill="var(--lh-red)"/>
+          <circle cx="75" cy="70" r="7" fill="var(--beam)"/>
+        </svg>
+
+        <div class="radar-circle" aria-hidden="true">
+          <div class="radar-sweep"></div>
+          <div class="radar-blip" style="top:30%; left:40%; animation-delay:0s;"></div>
+          <div class="radar-blip" style="top:55%; left:65%; animation-delay:.6s;"></div>
+          <div class="radar-blip" style="top:68%; left:35%; animation-delay:1.2s;"></div>
+          <div class="radar-blip" style="top:42%; left:55%; animation-delay:1.8s;"></div>
+        </div>
+
+        <div class="watchtower-card">
+          <p class="wt-title">Beacon uptime — the watchtower</p>
+          <p class="wt-sub">Fleet overview · total vessel connections: 15</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Journey ===== -->
+    <section class="journey" id="journey">
+      <div class="section-head">
+        <p class="eyebrow">Know your fleet, before the storm</p>
+        <h2>Four stages of a voyage</h2>
+        <p>Every vessel in your fleet moves through the same waters. Beacon tells you exactly which stage it's in, in real time.</p>
+      </div>
+
+      <div class="journey-track">
+        <article class="stage calm">
+          <div class="stage-icon">
+            <svg class="ship-bob" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <line x1="32" y1="8" x2="32" y2="44" stroke="currentColor" stroke-width="2" class="ship-hull"/>
+              <path d="M32 10 L48 24 L32 24 Z" fill="currentColor" class="ship-hull" opacity=".7"/>
+              <path d="M32 14 L18 26 L32 26 Z" fill="currentColor" class="ship-hull" opacity=".4"/>
+              <path d="M12 44h40l-5 9H17z" fill="var(--gold)"/>
+              <path d="M6 50c4-2 8-2 12 0s8 2 12 0 8-2 12 0 8 2 12 0" stroke="rgba(201,163,92,.4)" stroke-width="2" fill="none"/>
+            </svg>
+          </div>
+          <p class="stage-sub">Calm seas</p>
+          <h3>Healthy services</h3>
+          <p>Stable vessels reporting green across the entire fleet.</p>
+        </article>
+
+        <div class="connector"><span class="signal"></span></div>
+
+        <article class="stage rough">
+          <div class="stage-icon">
+            <svg class="ship-bob" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <line x1="32" y1="8" x2="32" y2="44" stroke="currentColor" stroke-width="2" class="ship-hull"/>
+              <path d="M32 10 L48 24 L32 24 Z" fill="currentColor" class="ship-hull" opacity=".7"/>
+              <path d="M32 14 L18 26 L32 26 Z" fill="currentColor" class="ship-hull" opacity=".4"/>
+              <path d="M12 44h40l-5 9H17z" fill="var(--gold)"/>
+              <path d="M4 50c4-3 8-3 12 0s8 3 12 0 8-3 12 0 8 3 12 0" stroke="rgba(224,162,60,.5)" stroke-width="2.5" fill="none"/>
+            </svg>
+          </div>
+          <p class="stage-sub">Rough waters</p>
+          <h3>Degraded performance</h3>
+          <p>Weak signals ripple through a handful of vessels.</p>
+        </article>
+
+        <div class="connector"><span class="signal"></span></div>
+
+        <article class="stage storm">
+          <div class="stage-icon">
+            <svg class="ship-bob" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <line x1="32" y1="8" x2="32" y2="44" stroke="currentColor" stroke-width="2" class="ship-hull"/>
+              <path d="M32 44h-12l4-9h8z" fill="currentColor" class="ship-hull" opacity=".7"/>
+              <path d="M32 44h12l-4-9h-8z" fill="currentColor" class="ship-hull" opacity=".4"/>
+              <text x="32" y="22" text-anchor="middle" font-family="Inter, sans-serif" font-weight="700" font-size="9" fill="var(--storm)" class="sos-flash">SOS</text>
+              <path d="M14 6l3 5-4 1 4 5" stroke="var(--rough)" stroke-width="2" fill="none" stroke-linecap="round" class="sos-flash"/>
+              <path d="M50 6l3 5-4 1 4 5" stroke="var(--rough)" stroke-width="2" fill="none" stroke-linecap="round" class="sos-flash"/>
+              <path d="M4 50c4-3 8-3 12 0s8 3 12 0 8-3 12 0 8 3 12 0" stroke="rgba(217,83,79,.55)" stroke-width="2.5" fill="none"/>
+            </svg>
+          </div>
+          <p class="stage-sub">Storm warning</p>
+          <h3>Service failure</h3>
+          <p>Broken connections raise the SOS flag fleet-wide.</p>
+        </article>
+
+        <div class="connector"><span class="signal"></span></div>
+
+        <article class="stage harbor">
+          <div class="stage-icon">
+            <svg class="ship-bob" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M50 20v34" stroke="currentColor" stroke-width="3" class="ship-hull"/>
+              <path d="M50 20 L62 30 L50 30 Z" fill="var(--lh-red)"/>
+              <rect x="46" y="30" width="8" height="8" fill="#0d2236" stroke="currentColor" class="ship-hull"/>
+              <line x1="14" y1="40" x2="32" y2="40" stroke="currentColor" stroke-width="2" class="ship-hull"/>
+              <path d="M14 40 L26 30 L32 40 Z" fill="currentColor" class="ship-hull" opacity=".6"/>
+              <path d="M6 50h52l-4 7H10z" fill="var(--gold)"/>
+            </svg>
+          </div>
+          <p class="stage-sub">Safe harbor</p>
+          <h3>Incident resolution</h3>
+          <p>Recovery brings the fleet home — MTTR under 30 minutes.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ===== Intelligence panels ===== -->
+    <section class="intel" id="intel">
+      <div class="section-head">
+        <p class="eyebrow">Charted from the watchtower</p>
+        <h2>Fleet intelligence, in plain sight</h2>
+        <p>Three views Beacon keeps on deck at all times — where the storms are, how fast the fleet responds, and how the harbor is holding up.</p>
+      </div>
+
+      <div class="intel-grid">
+        <article class="panel">
+          <h3>Storm systems tracking</h3>
+          <div class="panel-visual">
+            <div class="storm-dot-grid" aria-hidden="true"></div>
+            <div class="storm-cell" style="top:18px; left:60px;"></div>
+            <div class="storm-cell delay" style="top:60px; left:190px;"></div>
+            <div class="storm-label" style="top:8px; left:64px;">P1</div>
+            <div class="storm-label" style="top:50px; left:194px;">P2</div>
+          </div>
+          <p class="panel-caption">Incident timeline · major storm (P1) · 12:35–13:05 GMT</p>
+        </article>
+
+        <article class="panel">
+          <h3>Fleet response times</h3>
+          <div class="panel-visual">
+            <svg class="chart-svg" viewBox="0 0 400 140" preserveAspectRatio="none">
+              <line x1="0" y1="35" x2="400" y2="35" stroke="rgba(201,163,92,.18)" stroke-width="1"/>
+              <line x1="0" y1="70" x2="400" y2="70" stroke="rgba(201,163,92,.18)" stroke-width="1"/>
+              <line x1="0" y1="105" x2="400" y2="105" stroke="rgba(201,163,92,.18)" stroke-width="1"/>
+              <rect x="190" y="0" width="70" height="140" fill="rgba(217,83,79,.18)"/>
+              <path d="M0,95 C40,88 60,98 90,90 C120,82 140,94 170,86 C200,78 215,28 240,18 C260,10 280,46 310,84 C340,108 370,98 400,90"
+                    fill="none" stroke="var(--harbor)" stroke-width="2.5"/>
+              <text x="232" y="30" font-family="Inter, sans-serif" font-size="9" font-weight="600" fill="var(--lh-red)">500ms</text>
+              <text x="6" y="132" font-family="Inter, sans-serif" font-size="9" fill="rgba(201,163,92,.7)">avg 243ms</text>
+            </svg>
+            <div class="chart-scan" aria-hidden="true"></div>
+          </div>
+          <p class="panel-caption">Average response 243ms · storm peak 500ms</p>
+        </article>
+
+        <article class="panel">
+          <h3>Uptime harbor mastery</h3>
+          <div class="panel-visual">
+            <svg class="chart-svg" viewBox="0 0 220 140" preserveAspectRatio="none">
+              <rect x="30" y="30" width="160" height="80" fill="#13314a"/>
+              <path d="M30,110 L30,30 L190,30 L190,90" fill="none" stroke="var(--calm)" stroke-width="6" stroke-linecap="round"/>
+              <path d="M150,30 L190,30 L190,60" fill="none" stroke="var(--storm)" stroke-width="6" stroke-linecap="round"/>
+              <rect x="60" y="14" width="12" height="14" fill="var(--gold)"/>
+              <rect x="95" y="14" width="12" height="14" fill="var(--gold)"/>
+              <rect x="130" y="14" width="12" height="14" fill="var(--gold)"/>
+            </svg>
+            <svg class="harbor-boat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M3 17h18l-2 4H5z"/>
+              <path d="M12 17V6l6 6z"/>
+            </svg>
+          </div>
+          <p class="panel-caption">Fleet uptime 99.3% · harbor health</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ===== CTA ===== -->
+    <section class="cta" id="cta">
+      <h2>Deploy the Beacon</h2>
+      <p>Stand watch over every vessel in your stack — set up takes minutes.</p>
+      <a href="#" class="btn-primary">
+        <span class="wheel-svg" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="30" cy="30" r="21" stroke="currentColor" stroke-width="3"/>
+            <circle cx="30" cy="30" r="5" fill="currentColor"/>
+            <g stroke="currentColor" stroke-width="3" stroke-linecap="round">
+              <line x1="30" y1="9" x2="30" y2="51"/>
+              <line x1="9" y1="30" x2="51" y2="30"/>
+              <line x1="15" y1="15" x2="45" y2="45"/>
+              <line x1="45" y1="15" x2="15" y2="45"/>
+            </g>
+            <g fill="currentColor">
+              <circle cx="30" cy="7" r="2.6"/><circle cx="30" cy="53" r="2.6"/>
+              <circle cx="7" cy="30" r="2.6"/><circle cx="53" cy="30" r="2.6"/>
+              <circle cx="13" cy="13" r="2.6"/><circle cx="47" cy="47" r="2.6"/>
+              <circle cx="47" cy="13" r="2.6"/><circle cx="13" cy="47" r="2.6"/>
+            </g>
+          </svg>
+        </span>
+        Explore live fleet
+      </a>
+    </section>
+  </div>
+
+  <footer class="site-footer">
+    <div class="wrap">Beacon · Know your fleet, before the storm.</div>
+  </footer>
+
+<script>
+  if ('IntersectionObserver' in window) {
+    var observer = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in-view');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: .2 });
+    document.querySelectorAll('.stage, .panel').forEach(function(el){ observer.observe(el); });
+  } else {
+    document.querySelectorAll('.stage, .panel').forEach(function(el){ el.classList.add('in-view'); });
+  }
+</script>
+
+</body>
+</html>

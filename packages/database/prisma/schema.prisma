@@ -35,6 +35,7 @@ model Monitor {
   userId        String
   user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   name          String
+  slug          String        @unique
   url           String
   method        String        @default("GET")
   interval      Int           @default(60) // seconds
