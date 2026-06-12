@@ -58,23 +58,32 @@ uptime-monitor/
 * **[M1]** Configured shared BullMQ queues and Redis producer logic in `packages/queue`.
 * **[M1]** Built full Express Auth System in `apps/api` (register, login, JWT middleware, error handling).
 * **[M1]** Built full Monitor CRUD endpoints in `apps/api` (create, list, get, update, delete, pause, resume).
+* **[M2]** Built the `apps/scheduler` service to run a node-cron tick and enqueue checks.
+* **[M2]** Built the `apps/worker` service to execute HTTP probes and persist results.
+* **[M2]** Set up local development environment with Docker Compose for end-to-end integration testing.
+* **[M3]** Implemented Reliability Layer: incident detection, Redis failure counters, and incident state transitions.
+* **[M4]** Implemented Metrics API for charts, check history, and latency buckets.
+* **[M4]** Built Dashboard API and Public Status Page API endpoints.
+* **[M5]** Created Next.js API client with JWT token management.
+* **[M5]** Replicated nautical-themed reference design for Auth and Landing pages.
+* **[M5]** Built full Dashboard shell, Monitor list view, and Monitor detail view using custom theme and micro-animations.
+* **[M5]** Built Public Status Page with animated nautical scene.
 
 ## 8. Current Focus
-* Building the `apps/scheduler` service to run a node-cron tick and enqueue checks.
-* Building the `apps/worker` service to execute HTTP probes and persist results.
-* Setting up local development environment with Docker Compose for end-to-end integration testing.
+* Writing unit and integration tests across services.
+* Dockerizing all apps (`api`, `scheduler`, `worker`, `web`).
+* Creating the production `docker-compose.prod.yml` configuration.
+* Setting up daily cron job for data retention.
+* Finalizing `README.md` with setup instructions, API usage examples, and architecture diagrams.
 
 ## 9. Current Phase
-* **Phase:** Milestone 2 (Core Check Loop) - Execution
+* **Phase:** Milestone 6 (Polish and Deploy) - Execution
 
 ## 10. Next Milestone
-* **M3 — Reliability Layer:** Add Redis failure counters, and incident state transitions for confirm-down logic.
+* **M6 — Polish and Deploy:** Finalize tests, containerization, and documentation.
 
 ## 11. Future Milestones
-* **M3 — Reliability Layer:** Add BullMQ retries, Redis failure counters, and incident state transitions.
-* **M4 — Metrics API:** Implement endpoints for uptime calculation, check history, and latency buckets.
-* **M5 — Dashboard:** Build Next.js UI for monitor lists, detail pages, charts, and public status pages.
-* **M6 — Polish and Deploy:** Add unit/integration tests, final Docker Compose production config, and live deployment.
+* None (Milestone 6 is the final milestone for V1).
 
 ## 12. Important Technical Decisions
 * **Stateless Scheduler:** The scheduler uses PostgreSQL (`nextCheckAt`) to determine due checks instead of per-monitor cron jobs, preventing state loss on restarts.
@@ -83,6 +92,6 @@ uptime-monitor/
 * **Denormalized Monitor Status:** `MonitorStatus` is updated by the worker and stored on the `Monitor` entity for fast, lightweight dashboard reads without querying history.
 
 ## 13. Known Risks / Blockers
-* **Database Load:** The `checks` table will grow rapidly. The `(monitorId, checkedAt)` composite index is critical; future archival/retention strategies may be needed.
+* **Database Load:** The `checks` table will grow rapidly. The `(monitorId, checkedAt)` composite index is critical; future archival/retention strategies may be needed. (Planned for M6 data retention job)
 * **Scheduler Duplication:** Duplicate jobs could inflate metrics. Mitigated by using the `monitor.id` as the BullMQ `jobId` for deduplication.
 * **Redis Dependency:** Complete Redis failure halts job processing and incident detection. Scheduler handles Redis connection errors gracefully in V1.

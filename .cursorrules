@@ -1,0 +1,11 @@
+# Cursor Rules for Uptime Monitor
+
+Please read and strictly follow the design guidelines in [agent-instructions.md](file:///c:/Users/arjun/Downloads/uptime-monitor/agent-instructions.md) for all frontend styling, component construction, and page layouts.
+
+## UI Design Guidelines
+- Replicate the nautical/maritime theme precisely.
+- Use Vanilla CSS matching the defined CSS custom variables (colors, fonts, layout properties).
+- Implement standard animations (lighthouse sweep, star twinkle, radar spin, bobbing ships, etc.) using the exact keyframes specified in the instructions file.
+- All styles should be clean, modular, and imported properly. Do not use inline styles except for animation delays or coordinate offsets.
+- Always use semantic HTML, proper title tags, and SEO tags.
+- Interactive elements must be assigned unique and descriptive IDs for browser automation testing.

@@ -21,3 +21,15 @@ export async function addCheckJob(payload: MonitorCheckJob) {
     jobId: payload.monitorId,
   });
 }
+
+export async function addCheckJobsBulk(payloads: MonitorCheckJob[]) {
+  const jobs = payloads.map((payload) => ({
+    name: 'check',
+    data: payload,
+    opts: {
+      jobId: payload.monitorId,
+    },
+  }));
+  return monitorQueue.addBulk(jobs);
+}
+

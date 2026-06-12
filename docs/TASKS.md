@@ -160,39 +160,40 @@
 
 #### apps/web — Auth Pages
 
-- [ ] Create typed API client in `lib/api.ts` with JWT token management `M`
-- [ ] Build login page at `/auth/login` `M`
-- [ ] Build register page at `/auth/register` `M`
-- [ ] Add auth guard: redirect unauthenticated users to login `S`
+- [x] Create typed API client in `lib/api.ts` with JWT token management `M`
+- [x] Build login page at `/auth/login` `M`
+- [x] Build register page at `/auth/register` `M`
+- [x] Replicate landing page UI from reference design `S`
+- [x] Add auth guard: redirect unauthenticated users to login (implemented redirect guards for auth routes) `S`
 
 #### apps/web — Monitor List View
 
-- [ ] Build dashboard layout with sidebar/header navigation `M`
-- [ ] Build `MonitorCard` component — name, URL, status badge, uptime %, last checked `M`
-- [ ] Build monitor list page at `/(dashboard)/page.tsx` with summary stats `M`
-- [ ] Add create monitor modal/form with Zod validation `M`
-- [ ] Add pause/resume and delete actions on monitor cards `S`
-- [ ] Implement polling (30s interval) for real-time status updates `S`
+- [x] Build dashboard layout with sidebar/header navigation `M`
+- [x] Build `MonitorCard` component — name, URL, status badge, uptime %, last checked `M`
+- [x] Build monitor list page at `/dashboard/page.tsx` with summary stats `M`
+- [x] Add create monitor modal/form with Zod validation `M`
+- [x] Add pause/resume and delete actions on monitor cards `S`
+- [x] Implement polling (30s interval) for real-time status updates `S`
 
 #### apps/web — Monitor Detail View
 
-- [ ] Build monitor detail page at `/(dashboard)/monitors/[id]/page.tsx` `M`
-- [ ] Build `LatencyChart` component with Recharts (line chart, time window toggle) `L`
-- [ ] Build recent checks table (last 20, timestamp, status, response time, HTTP code) `M`
-- [ ] Build `IncidentList` component with start time, resolution time, duration `M`
-- [ ] Add uptime % display for 24h / 7d / 30d toggle `S`
+- [x] Build monitor detail page at `/dashboard/monitors/[id]/page.tsx` `M`
+- [x] Build `LatencyChart` component with Recharts (line chart, time window toggle) `L`
+- [x] Build recent checks table (last 20, timestamp, status, response time, HTTP code) `M`
+- [x] Build `IncidentList` component with start time, resolution time, duration `M`
+- [x] Add uptime % display for 24h / 7d / 30d toggle `S`
 
 #### apps/web — Public Status Page
 
-- [ ] Build public status page at `/status/[slug]/page.tsx` (no auth) `M`
-- [ ] Display monitor name, current status, 7d uptime %, last 10 incidents `M`
+- [x] Build public status page at `/status/[slug]/page.tsx` (no auth) `M`
+- [x] Display monitor name, current status, 7d uptime %, last 10 incidents `M`
 
 #### apps/web — UX Polish
 
-- [ ] Add loading skeletons for all data-fetching components `S`
-- [ ] Add empty states (first-time user prompt to create monitor) `S`
-- [ ] Add error handling with user-readable messages `S`
-- [ ] Ensure responsive layout for desktop and tablet `M`
+- [x] Add loading skeletons for all data-fetching components `S`
+- [x] Add empty states (first-time user prompt to create monitor) `S`
+- [x] Add error handling with user-readable messages `S`
+- [x] Ensure responsive layout for desktop and tablet `M`
 
 ### Milestone 6: Polish and Deploy
 
