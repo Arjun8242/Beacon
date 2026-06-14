@@ -50,7 +50,7 @@ export default function PublicStatusPage() {
         justifyContent: 'center',
         background: 'var(--bg-deep)',
         color: 'var(--parchment)',
-        fontFamily: 'Cinzel, serif'
+        fontFamily: 'Fraunces, Georgia, serif'
       }}>
         <div style={{ textAlign: 'center' }}>
           <h2>Scanning the horizon...</h2>
@@ -219,7 +219,7 @@ export default function PublicStatusPage() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem', marginBottom: '1.5rem', background: 'rgba(58, 44, 24, 0.04)', padding: '1rem', borderRadius: '6px', border: '1px solid rgba(110, 90, 60, 0.1)' }}>
             <div style={{ textAlign: 'center' }}>
               <span style={{ fontSize: '0.72rem', textTransform: 'uppercase', color: 'var(--ink-soft)', letterSpacing: '0.08em', fontWeight: 600 }}>7-Day Uptime Mastery</span>
-              <p style={{ fontSize: '1.8rem', fontWeight: 700, margin: '0.25rem 0', fontFamily: 'Inter, sans-serif' }}>
+              <p style={{ fontSize: '1.8rem', fontWeight: 700, margin: '0.25rem 0', fontFamily: 'var(--ff-mono, JetBrains Mono, monospace)' }}>
                 {statusData.uptimePercent7d.toFixed(2)}%
               </p>
               <div className="stat-bar" style={{ background: 'rgba(58, 44, 24, 0.15)', height: '6px', maxWidth: '240px', margin: '0.5rem auto 0' }}>
@@ -234,7 +234,7 @@ export default function PublicStatusPage() {
           </div>
 
           <div style={{ marginTop: '1.5rem' }}>
-            <h3 style={{ fontFamily: 'Cinzel, serif', fontSize: '1rem', letterSpacing: '0.06em', borderBottom: '1px solid rgba(110, 90, 60, 0.15)', paddingBottom: '0.4rem', color: 'var(--ink)' }}>
+            <h3 style={{ fontFamily: 'var(--ff-display, Fraunces, Georgia, serif)', fontSize: '1rem', letterSpacing: '0.02em', borderBottom: '1px solid rgba(110, 90, 60, 0.15)', paddingBottom: '0.4rem', color: 'var(--ink)', fontWeight: 700 }}>
               Recent Outage Incidents
             </h3>
             
@@ -298,10 +298,10 @@ export default function PublicStatusPage() {
               <path d="M60 24 L68 60 L60 96 L52 60 Z" fill="var(--gold)" opacity=".8"/>
               <path d="M60 24 L68 60 L60 60 Z" fill="var(--lh-red)"/>
             </g>
-            <text x="60" y="14" text-anchor="middle" fontFamily="Cinzel, serif" fontSize="11" fill="var(--parchment)">N</text>
-            <text x="60" y="112" text-anchor="middle" fontFamily="Cinzel, serif" fontSize="11" fill="var(--parchment)">S</text>
-            <text x="8" y="64" text-anchor="middle" fontFamily="Cinzel, serif" fontSize="11" fill="var(--parchment)">W</text>
-            <text x="112" y="64" text-anchor="middle" fontFamily="Cinzel, serif" fontSize="11" fill="var(--parchment)">E</text>
+            <text x="60" y="14" text-anchor="middle" fontFamily="Fraunces, Georgia, serif" fontSize="11" fill="var(--parchment)">N</text>
+            <text x="60" y="112" text-anchor="middle" fontFamily="Fraunces, Georgia, serif" fontSize="11" fill="var(--parchment)">S</text>
+            <text x="8" y="64" text-anchor="middle" fontFamily="Fraunces, Georgia, serif" fontSize="11" fill="var(--parchment)">W</text>
+            <text x="112" y="64" text-anchor="middle" fontFamily="Fraunces, Georgia, serif" fontSize="11" fill="var(--parchment)">E</text>
           </svg>
         </div>
 

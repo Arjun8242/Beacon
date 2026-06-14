@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Beacon — Infrastructure as Ocean</title>
+<title>Beacon — AI Service Status Monitoring</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -308,6 +308,249 @@
     .hero-visual{ max-height:340px; }
   }
 
+  /* ===== Why Beacon (story) ===== */
+  .story{ position:relative; z-index:2; padding:1rem 0 4rem; }
+  .story-grid{
+    display:grid;
+    grid-template-columns:repeat(3, minmax(0,1fr));
+    gap:1.25rem;
+  }
+  .story-panel{
+    background:var(--parchment);
+    color:var(--ink);
+    border-radius:10px;
+    padding:1.75rem 1.5rem;
+    text-align:center;
+    box-shadow:0 14px 30px -16px rgba(0,0,0,.5);
+    opacity:0;
+    transform:translateY(16px);
+    transition:opacity .6s ease, transform .6s ease;
+  }
+  .story-panel.in-view{ opacity:1; transform:translateY(0); }
+  .story-visual{
+    width:84px; height:84px;
+    margin:0 auto 1.1rem;
+    position:relative;
+  }
+  .story-visual svg{ width:100%; height:100%; display:block; }
+  .story-panel h3{
+    font-family:'Cinzel', serif;
+    font-size:1.05rem;
+    letter-spacing:.04em;
+    margin:0 0 .55rem;
+    font-weight:700;
+  }
+  .story-panel p{
+    font-size:.85rem;
+    color:var(--ink-soft);
+    line-height:1.65;
+    margin:0;
+  }
+
+  /* lighthouse-in-night visual */
+  .lighthouse-visual{
+    background:radial-gradient(circle at 50% 32%, #1c3c58, #081320 72%);
+    border-radius:50%;
+    overflow:hidden;
+  }
+  .story-beam-pivot{
+    position:absolute;
+    top:24%;
+    left:50%;
+    width:0; height:0;
+    transform-origin:50% 100%;
+    animation:sweep 8s ease-in-out infinite;
+  }
+  .story-beam{
+    position:absolute;
+    bottom:0;
+    left:-60px;
+    width:120px;
+    height:120px;
+    background:linear-gradient(to top, rgba(255,243,207,.55), rgba(255,243,207,0) 75%);
+    clip-path:polygon(50% 100%, 16% 0%, 84% 0%);
+    mix-blend-mode:screen;
+  }
+
+  /* storm-approaching visual */
+  .storm-visual .story-clouds{ animation:drift-in 4s ease-in-out infinite alternate; transform-origin:center; }
+  @keyframes drift-in{
+    0%{ transform:translateX(5px); opacity:.85; }
+    100%{ transform:translateX(-5px); opacity:1; }
+  }
+
+  @media (max-width:900px){
+    .story-grid{ grid-template-columns:1fr; }
+  }
+
+  /* ===== Product screenshot ===== */
+  .product-shot{ position:relative; z-index:2; padding:1rem 0 4.5rem; }
+  .browser-frame{
+    border-radius:12px;
+    overflow:hidden;
+    border:1px solid rgba(201,163,92,.18);
+    box-shadow:0 24px 60px -24px rgba(0,0,0,.6);
+    opacity:0;
+    transform:translateY(16px);
+    transition:opacity .6s ease, transform .6s ease;
+  }
+  .browser-frame.in-view{ opacity:1; transform:translateY(0); }
+  .browser-bar{
+    display:flex;
+    align-items:center;
+    gap:.4rem;
+    background:#0c1d2e;
+    padding:.65rem .9rem;
+    border-bottom:1px solid rgba(201,163,92,.14);
+  }
+  .browser-bar .traffic{ width:9px; height:9px; border-radius:50%; background:rgba(201,163,92,.3); }
+  .browser-url{
+    margin-left:.7rem;
+    font-size:.72rem;
+    color:var(--text-secondary);
+    background:rgba(255,255,255,.04);
+    padding:.2rem .8rem;
+    border-radius:5px;
+    font-family:monospace;
+  }
+  .mini-dashboard{ display:flex; background:#0a1622; min-height:300px; }
+  .mini-sidebar{
+    width:130px;
+    flex:none;
+    background:#0c1d2e;
+    border-right:1px solid rgba(201,163,92,.1);
+    padding:1.1rem .85rem;
+  }
+  .mini-brand{
+    font-family:'Cinzel', serif;
+    font-weight:700;
+    font-size:.7rem;
+    letter-spacing:.14em;
+    color:var(--gold);
+    margin-bottom:1.25rem;
+  }
+  .mini-nav-item{
+    height:8px;
+    border-radius:4px;
+    background:rgba(255,255,255,.06);
+    margin-bottom:.55rem;
+    width:78%;
+  }
+  .mini-nav-item.active{ background:rgba(201,163,92,.4); width:100%; }
+  .mini-main{ flex:1; padding:1.25rem 1.4rem; min-width:0; }
+  .mini-heading{
+    font-size:.78rem;
+    font-weight:600;
+    color:var(--parchment);
+    margin:0 0 .85rem;
+  }
+  .mini-stats{
+    display:grid;
+    grid-template-columns:repeat(4, minmax(0,1fr));
+    gap:.6rem;
+    margin-bottom:1rem;
+  }
+  .mini-stat{
+    background:var(--parchment);
+    color:var(--ink);
+    border-radius:6px;
+    padding:.55rem .65rem;
+  }
+  .mini-stat-value{ display:block; font-weight:700; font-size:1.15rem; line-height:1.2; }
+  .mini-stat-label{ font-size:.6rem; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-soft); }
+  .mini-grid{
+    display:grid;
+    grid-template-columns:repeat(3, minmax(0,1fr));
+    gap:.6rem;
+  }
+  .mini-card{
+    background:#10243a;
+    border:1px solid rgba(201,163,92,.12);
+    border-radius:6px;
+    padding:.6rem .7rem;
+    font-size:.72rem;
+  }
+  .mini-card.degraded{ border-color:rgba(217,83,79,.4); }
+  .mini-card .mc-name{ font-weight:600; margin-bottom:.4rem; color:var(--parchment); }
+  .mini-card .mc-meta{ display:flex; justify-content:space-between; align-items:center; color:var(--text-secondary); font-size:.66rem; }
+  .mini-pill{ font-size:.6rem; padding:.05rem .4rem; border-radius:4px; font-weight:600; }
+  .mini-pill.green{ background:rgba(95,174,110,.18); color:var(--beacon-green-bright); }
+  .mini-pill.red{ background:rgba(217,83,79,.18); color:#f3a8a5; }
+
+  @media (max-width:760px){
+    .mini-sidebar{ display:none; }
+    .mini-stats{ grid-template-columns:repeat(2, minmax(0,1fr)); }
+    .mini-grid{ grid-template-columns:1fr; }
+  }
+
+  /* ===== Architecture ===== */
+  .architecture{ position:relative; z-index:2; padding:1rem 0 4.5rem; }
+  .arch-diagram-wrap{
+    background:#0a1622;
+    border:1px solid rgba(201,163,92,.18);
+    border-radius:12px;
+    padding:2rem 1.25rem;
+    margin-bottom:1.5rem;
+    overflow-x:auto;
+    opacity:0;
+    transform:translateY(16px);
+    transition:opacity .6s ease, transform .6s ease;
+  }
+  .arch-diagram-wrap.in-view{ opacity:1; transform:translateY(0); }
+  .arch-diagram{ display:block; width:100%; max-width:520px; margin:0 auto; }
+  .arch-diagram text{ font-family:'Inter', sans-serif; }
+  .arch-box-label{ font-size:15px; font-weight:600; fill:var(--parchment); }
+
+  .worker-ring{
+    animation:worker-pulse 2.4s ease-out infinite;
+  }
+  .worker-ring.delay-1{ animation-delay:.5s; }
+  .worker-ring.delay-2{ animation-delay:1s; }
+  @keyframes worker-pulse{
+    0%{ r:3; opacity:.9; }
+    100%{ r:11; opacity:0; }
+  }
+
+  .flow-packet{
+    offset-path:path('M300,8 L300,596');
+    animation:flow-move 6s linear infinite;
+    filter:drop-shadow(0 0 4px rgba(168,230,180,.8));
+  }
+  .flow-packet.delay{ animation-delay:3s; }
+  @keyframes flow-move{
+    0%{ offset-distance:0%; opacity:0; }
+    4%{ opacity:1; }
+    96%{ opacity:1; }
+    100%{ offset-distance:100%; opacity:0; }
+  }
+
+  .arch-grid{
+    display:grid;
+    grid-template-columns:repeat(3, minmax(0,1fr));
+    gap:1.25rem;
+  }
+  .arch-card{
+    background:rgba(255,255,255,.02);
+    border:1px solid rgba(201,163,92,.14);
+    border-radius:10px;
+    padding:1.35rem 1.35rem;
+    opacity:0;
+    transform:translateY(16px);
+    transition:opacity .6s ease, transform .6s ease;
+  }
+  .arch-card.in-view{ opacity:1; transform:translateY(0); }
+  .arch-card .arch-icon{
+    width:30px; height:30px;
+    color:var(--gold);
+    margin-bottom:.85rem;
+  }
+  .arch-card h3{ font-size:.95rem; margin:0 0 .4rem; font-weight:600; }
+  .arch-card p{ font-size:.85rem; color:var(--text-secondary); margin:0; line-height:1.6; }
+
+  @media (max-width:900px){
+    .arch-grid{ grid-template-columns:1fr; }
+  }
+
   /* ===== Journey ===== */
   .journey{
     position:relative;
@@ -557,11 +800,11 @@
   }
 
   @media (prefers-reduced-motion: reduce){
-    .beam-pivot, .star, .radar-sweep, .radar-blip, .signal, .ship-bob, .storm-cell::before, .chart-scan, .harbor-boat, .sos-flash{
+    .beam-pivot, .star, .radar-sweep, .radar-blip, .signal, .ship-bob, .storm-cell::before, .chart-scan, .harbor-boat, .sos-flash, .story-beam-pivot, .story-clouds, .worker-ring, .flow-packet{
       animation:none !important;
     }
     html{ scroll-behavior:auto; }
-    .stage, .panel{ opacity:1; transform:none; transition:none; }
+    .stage, .panel, .story-panel, .browser-frame, .arch-diagram-wrap, .arch-card{ opacity:1; transform:none; transition:none; }
   }
 </style>
 </head>
@@ -586,19 +829,22 @@
         BEACON
       </div>
       <nav class="nav-links">
-        <a href="#journey">Live status</a>
+        <a href="#why">Why Beacon</a>
+        <a href="#product">Product</a>
+        <a href="#architecture">Architecture</a>
         <a href="#intel">Pricing</a>
         <a href="#">Sign in</a>
-        <a href="#cta" class="nav-cta">Deploy the Beacon</a>
+        <a href="#cta" class="nav-cta">Get started</a>
       </nav>
     </header>
 
     <!-- ===== Hero ===== -->
     <section class="hero">
       <div class="hero-copy">
-        <p class="eyebrow">— Beacon uptime · the watchtower</p>
-        <h1>Infrastructure<br>as ocean.</h1>
-        <p class="lead">Know your fleet, before the storm. Beacon watches every vessel in your stack and signals the moment the water turns rough.</p>
+        <p class="eyebrow">— Real-time status for your AI stack</p>
+        <h1>Monitor every service
+<br>your business depends on.</h1>
+        <p class="lead">Beacon continuously monitors the AI apps and APIs your product depends on — Claude, ChatGPT, Gemini, and more — and alerts you the moment latency rises or a service goes down.</p>
         <div class="hero-actions">
           <a href="#cta" class="btn-primary">
             <span class="wheel-svg" aria-hidden="true">
@@ -613,9 +859,9 @@
                 </g>
               </svg>
             </span>
-            Deploy the Beacon
+            Get started
           </a>
-          <a href="#journey" class="btn-text">Explore live fleet</a>
+          <a href="#journey" class="btn-text">See how it works</a>
         </div>
       </div>
 
@@ -645,18 +891,242 @@
         </div>
 
         <div class="watchtower-card">
-          <p class="wt-title">Beacon uptime — the watchtower</p>
-          <p class="wt-sub">Fleet overview · total vessel connections: 15</p>
+          <p class="wt-title">Beacon status board</p>
+          <p class="wt-sub">Now monitoring 15 connected services</p>
         </div>
+      </div>
+    </section>
+
+    <!-- ===== Why Beacon (story) ===== -->
+    <section class="story" id="why">
+      <div class="section-head">
+        <p class="eyebrow">Why "Beacon"?</p>
+        <h2>Inspired by how lighthouses guide ships through storms.</h2>
+      </div>
+      <div class="story-grid">
+        <article class="story-panel">
+          <div class="story-visual lighthouse-visual">
+            <div class="story-beam-pivot" aria-hidden="true"><div class="story-beam"></div></div>
+            <svg viewBox="0 0 150 200" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Lighthouse scanning the sea with a sweeping beam">
+              <path d="M50 175 L65 90 L85 90 L100 175 Z" fill="var(--lh-white)"/>
+              <rect x="58" y="150" width="34" height="11" fill="var(--lh-red)"/>
+              <rect x="61" y="123" width="28" height="11" fill="var(--lh-red)"/>
+              <rect x="64" y="96" width="22" height="11" fill="var(--lh-red)"/>
+              <rect x="55" y="84" width="40" height="7" fill="#2c3e30"/>
+              <rect x="62" y="55" width="26" height="30" fill="#0d2236" stroke="var(--lh-white)" stroke-width="3"/>
+              <path d="M62 55 L75 36 L88 55 Z" fill="var(--lh-red)"/>
+              <circle cx="75" cy="70" r="7" fill="var(--beam)"/>
+            </svg>
+          </div>
+          <h3>The Lighthouse</h3>
+          <p>A lighthouse doesn't prevent storms — it watches the horizon and warns ships before danger arrives. Beacon does the same for your websites, APIs, and services.</p>
+        </article>
+
+        <article class="story-panel">
+          <div class="story-visual">
+            <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Storm clouds approaching a ship">
+              <line x1="6" y1="74" x2="94" y2="74" stroke="rgba(58,44,24,.2)" stroke-width="2"/>
+              <g>
+                <line x1="34" y1="42" x2="34" y2="70" stroke="var(--rough)" stroke-width="3"/>
+                <path d="M34 44 L52 58 L34 58 Z" fill="var(--rough)" opacity=".7"/>
+                <path d="M20 70h28l-3 7H23z" fill="var(--gold)"/>
+              </g>
+              <g class="story-clouds" fill="var(--storm)" opacity=".55">
+                <ellipse cx="76" cy="26" rx="17" ry="10"/>
+                <ellipse cx="62" cy="30" rx="12" ry="8"/>
+                <ellipse cx="88" cy="32" rx="10" ry="7"/>
+              </g>
+            </svg>
+          </div>
+          <h3>The Storm</h3>
+          <p>Small signals become major incidents. A slow API response today can become tomorrow's outage. Beacon catches latency spikes and failures before they reach your users.</p>
+        </article>
+
+        <article class="story-panel">
+          <div class="story-visual">
+            <svg class="ship-bob" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" style="color:var(--harbor)" role="img" aria-label="Ship returning to harbor after a storm">
+              <path d="M50 20v34" stroke="currentColor" stroke-width="3"/>
+              <path d="M50 20 L62 30 L50 30 Z" fill="var(--lh-red)"/>
+              <rect x="46" y="30" width="8" height="8" fill="#0d2236" stroke="currentColor"/>
+              <line x1="14" y1="40" x2="32" y2="40" stroke="currentColor" stroke-width="2"/>
+              <path d="M14 40 L26 30 L32 40 Z" fill="currentColor" opacity=".6"/>
+              <path d="M6 50h52l-4 7H10z" fill="var(--gold)"/>
+            </svg>
+          </div>
+          <h3>Safe Harbor</h3>
+          <p>Every incident tells a story. Beacon tracks the full lifecycle — from healthy operation to failure and recovery — so your team knows exactly what happened and how fast you responded.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ===== Product screenshot ===== -->
+    <section class="product-shot" id="product">
+      <div class="section-head">
+        <p class="eyebrow">See it in action</p>
+        <h2>Your services, watched around the clock</h2>
+      </div>
+      <div class="browser-frame">
+        <div class="browser-bar">
+          <span class="traffic"></span><span class="traffic"></span><span class="traffic"></span>
+          <span class="browser-url">app.beacon.dev/dashboard</span>
+        </div>
+        <div class="mini-dashboard">
+          <div class="mini-sidebar" aria-hidden="true">
+            <div class="mini-brand">BEACON</div>
+            <div class="mini-nav-item active"></div>
+            <div class="mini-nav-item"></div>
+            <div class="mini-nav-item"></div>
+            <div class="mini-nav-item"></div>
+            <div class="mini-nav-item"></div>
+          </div>
+          <div class="mini-main">
+            <p class="mini-heading">Service overview</p>
+            <div class="mini-stats">
+              <div class="mini-stat"><span class="mini-stat-value">34</span><span class="mini-stat-label">Operational</span></div>
+              <div class="mini-stat"><span class="mini-stat-value">1</span><span class="mini-stat-label">Degraded</span></div>
+              <div class="mini-stat"><span class="mini-stat-value">0</span><span class="mini-stat-label">Major outages</span></div>
+              <div class="mini-stat"><span class="mini-stat-value">99.7%</span><span class="mini-stat-label">Uptime</span></div>
+            </div>
+            <div class="mini-grid">
+              <div class="mini-card">
+                <p class="mc-name">claude.ai</p>
+                <div class="mc-meta"><span>44ms</span><span class="mini-pill green">Operational</span></div>
+              </div>
+              <div class="mini-card">
+                <p class="mc-name">ChatGPT</p>
+                <div class="mc-meta"><span>63ms</span><span class="mini-pill green">Operational</span></div>
+              </div>
+              <div class="mini-card degraded">
+                <p class="mc-name">Mistral API</p>
+                <div class="mc-meta"><span>119ms</span><span class="mini-pill red">Partial outage</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Architecture ===== -->
+    <section class="architecture" id="architecture">
+      <div class="section-head">
+        <p class="eyebrow">Under the hood</p>
+        <h2>Built like production infrastructure</h2>
+        <p>Every check runs through the same pipeline — scheduled, queued, executed by independent workers, and pushed to your dashboard the moment something changes.</p>
+      </div>
+
+      <div class="arch-diagram-wrap">
+        <svg class="arch-diagram" viewBox="0 0 600 600" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Architecture diagram: Monitor flows to Scheduler Service, to BullMQ Queue, fanning out to three Workers, merging into Incident Detection, then PostgreSQL and Redis, then the Realtime UI">
+          <defs>
+            <marker id="arch-arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" fill="var(--gold)"/>
+            </marker>
+          </defs>
+
+          <!-- connecting lines -->
+          <g stroke="rgba(201,163,92,.45)" stroke-width="2">
+            <line x1="300" y1="54" x2="300" y2="84" marker-end="url(#arch-arrow)"/>
+            <line x1="300" y1="134" x2="300" y2="164" marker-end="url(#arch-arrow)"/>
+            <line x1="300" y1="214" x2="300" y2="240"/>
+            <line x1="100" y1="240" x2="500" y2="240"/>
+            <line x1="100" y1="240" x2="100" y2="264" marker-end="url(#arch-arrow)"/>
+            <line x1="300" y1="240" x2="300" y2="264" marker-end="url(#arch-arrow)"/>
+            <line x1="500" y1="240" x2="500" y2="264" marker-end="url(#arch-arrow)"/>
+            <line x1="100" y1="314" x2="100" y2="340"/>
+            <line x1="300" y1="314" x2="300" y2="340"/>
+            <line x1="500" y1="314" x2="500" y2="340"/>
+            <line x1="100" y1="340" x2="500" y2="340"/>
+            <line x1="300" y1="340" x2="300" y2="364" marker-end="url(#arch-arrow)"/>
+            <line x1="300" y1="414" x2="300" y2="444" marker-end="url(#arch-arrow)"/>
+            <line x1="300" y1="494" x2="300" y2="524" marker-end="url(#arch-arrow)"/>
+          </g>
+
+          <!-- Monitor -->
+          <rect x="220" y="10" width="160" height="44" rx="8" fill="#10243a" stroke="var(--gold)" stroke-width="1.5"/>
+          <text x="300" y="37" text-anchor="middle" class="arch-box-label">Monitor</text>
+
+          <!-- Scheduler Service -->
+          <rect x="190" y="84" width="220" height="44" rx="8" fill="#10243a" stroke="rgba(201,163,92,.3)" stroke-width="1.5"/>
+          <text x="300" y="111" text-anchor="middle" class="arch-box-label">Scheduler Service</text>
+
+          <!-- BullMQ Queue -->
+          <rect x="200" y="164" width="200" height="44" rx="8" fill="#10243a" stroke="rgba(201,163,92,.3)" stroke-width="1.5"/>
+          <text x="300" y="191" text-anchor="middle" class="arch-box-label">BullMQ Queue</text>
+
+          <!-- Workers -->
+          <rect x="30" y="264" width="140" height="44" rx="8" fill="#10243a" stroke="rgba(95,174,110,.4)" stroke-width="1.5"/>
+          <text x="100" y="291" text-anchor="middle" class="arch-box-label">Worker 1</text>
+          <rect x="230" y="264" width="140" height="44" rx="8" fill="#10243a" stroke="rgba(95,174,110,.4)" stroke-width="1.5"/>
+          <text x="300" y="291" text-anchor="middle" class="arch-box-label">Worker 2</text>
+          <rect x="430" y="264" width="140" height="44" rx="8" fill="#10243a" stroke="rgba(95,174,110,.4)" stroke-width="1.5"/>
+          <text x="500" y="291" text-anchor="middle" class="arch-box-label">Worker 3</text>
+
+          <!-- worker live indicators -->
+          <circle class="worker-ring" cx="158" cy="276" r="3" fill="none" stroke="var(--beacon-green-bright)" stroke-width="1.5"/>
+          <circle cx="158" cy="276" r="3" fill="var(--beacon-green-bright)"/>
+          <circle class="worker-ring delay-1" cx="358" cy="276" r="3" fill="none" stroke="var(--beacon-green-bright)" stroke-width="1.5"/>
+          <circle cx="358" cy="276" r="3" fill="var(--beacon-green-bright)"/>
+          <circle class="worker-ring delay-2" cx="558" cy="276" r="3" fill="none" stroke="var(--beacon-green-bright)" stroke-width="1.5"/>
+          <circle cx="558" cy="276" r="3" fill="var(--beacon-green-bright)"/>
+
+          <!-- Incident Detection -->
+          <rect x="190" y="364" width="220" height="44" rx="8" fill="#10243a" stroke="rgba(224,162,60,.45)" stroke-width="1.5"/>
+          <text x="300" y="391" text-anchor="middle" class="arch-box-label">Incident Detection</text>
+
+          <!-- PostgreSQL + Redis -->
+          <rect x="190" y="444" width="220" height="44" rx="8" fill="#10243a" stroke="rgba(70,179,168,.45)" stroke-width="1.5"/>
+          <text x="300" y="471" text-anchor="middle" class="arch-box-label">PostgreSQL + Redis</text>
+
+          <!-- Realtime UI -->
+          <rect x="210" y="524" width="180" height="44" rx="8" fill="#10243a" stroke="var(--beacon-green)" stroke-width="1.5"/>
+          <text x="300" y="551" text-anchor="middle" class="arch-box-label" style="fill:var(--beacon-green-bright)">Realtime UI</text>
+
+          <!-- live data flow -->
+          <circle class="flow-packet" r="4" fill="var(--beam)"/>
+          <circle class="flow-packet delay" r="4" fill="var(--beam)"/>
+        </svg>
+      </div>
+
+      <div class="arch-grid">
+        <article class="arch-card">
+          <svg class="arch-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <circle cx="12" cy="5" r="2.5"/>
+            <circle cx="5" cy="19" r="2.5"/>
+            <circle cx="19" cy="19" r="2.5"/>
+            <path d="M12 7.5v4M12 11.5L6.5 16.5M12 11.5l5.5 5"/>
+          </svg>
+          <h3>Distributed workers</h3>
+          <p>Multiple workers execute checks independently, so one slow check never blocks the rest of your fleet.</p>
+        </article>
+
+        <article class="arch-card">
+          <svg class="arch-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/>
+            <path d="M9 12l2 2 4-4"/>
+          </svg>
+          <h3>Intelligent incident detection</h3>
+          <p>Beacon waits for consecutive failures before raising an incident, avoiding false positives from one-off blips.</p>
+        </article>
+
+        <article class="arch-card">
+          <svg class="arch-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <circle cx="12" cy="12" r="1.6" fill="currentColor"/>
+            <path d="M8.5 15.5a5 5 0 0 1 0-7"/>
+            <path d="M15.5 8.5a5 5 0 0 1 0 7"/>
+            <path d="M5.5 18.5a9 9 0 0 1 0-13"/>
+            <path d="M18.5 5.5a9 9 0 0 1 0 13"/>
+          </svg>
+          <h3>Realtime updates</h3>
+          <p>Status changes are pushed to the dashboard instantly over WebSockets — no refresh needed.</p>
+        </article>
       </div>
     </section>
 
     <!-- ===== Journey ===== -->
     <section class="journey" id="journey">
       <div class="section-head">
-        <p class="eyebrow">Know your fleet, before the storm</p>
-        <h2>Four stages of a voyage</h2>
-        <p>Every vessel in your fleet moves through the same waters. Beacon tells you exactly which stage it's in, in real time.</p>
+        <p class="eyebrow">From healthy to resolved</p>
+        <h2>Four states every service moves through</h2>
+        <p>Every API and app you monitor follows the same lifecycle. Beacon shows you exactly which state it's in, the moment it changes.</p>
       </div>
 
       <div class="journey-track">
@@ -670,9 +1140,9 @@
               <path d="M6 50c4-2 8-2 12 0s8 2 12 0 8-2 12 0 8 2 12 0" stroke="rgba(201,163,92,.4)" stroke-width="2" fill="none"/>
             </svg>
           </div>
-          <p class="stage-sub">Calm seas</p>
+          <p class="stage-sub">Operational</p>
           <h3>Healthy services</h3>
-          <p>Stable vessels reporting green across the entire fleet.</p>
+          <p>All monitored services are responding normally, with stable latency and uptime.</p>
         </article>
 
         <div class="connector"><span class="signal"></span></div>
@@ -687,9 +1157,9 @@
               <path d="M4 50c4-3 8-3 12 0s8 3 12 0 8-3 12 0 8 3 12 0" stroke="rgba(224,162,60,.5)" stroke-width="2.5" fill="none"/>
             </svg>
           </div>
-          <p class="stage-sub">Rough waters</p>
+          <p class="stage-sub">Degraded</p>
           <h3>Degraded performance</h3>
-          <p>Weak signals ripple through a handful of vessels.</p>
+          <p>Response times slip or error rates climb on one or more services.</p>
         </article>
 
         <div class="connector"><span class="signal"></span></div>
@@ -706,9 +1176,9 @@
               <path d="M4 50c4-3 8-3 12 0s8 3 12 0 8-3 12 0 8 3 12 0" stroke="rgba(217,83,79,.55)" stroke-width="2.5" fill="none"/>
             </svg>
           </div>
-          <p class="stage-sub">Storm warning</p>
+          <p class="stage-sub">Major outage</p>
           <h3>Service failure</h3>
-          <p>Broken connections raise the SOS flag fleet-wide.</p>
+          <p>A monitored service goes down, and Beacon flags it the moment it happens.</p>
         </article>
 
         <div class="connector"><span class="signal"></span></div>
@@ -724,9 +1194,9 @@
               <path d="M6 50h52l-4 7H10z" fill="var(--gold)"/>
             </svg>
           </div>
-          <p class="stage-sub">Safe harbor</p>
+          <p class="stage-sub">Resolved</p>
           <h3>Incident resolution</h3>
-          <p>Recovery brings the fleet home — MTTR under 30 minutes.</p>
+          <p>Service is back to normal and logged automatically — average resolution under 30 minutes.</p>
         </article>
       </div>
     </section>
@@ -734,14 +1204,14 @@
     <!-- ===== Intelligence panels ===== -->
     <section class="intel" id="intel">
       <div class="section-head">
-        <p class="eyebrow">Charted from the watchtower</p>
-        <h2>Fleet intelligence, in plain sight</h2>
-        <p>Three views Beacon keeps on deck at all times — where the storms are, how fast the fleet responds, and how the harbor is holding up.</p>
+        <p class="eyebrow">Always-on visibility</p>
+        <h2>Everything you need to know, at a glance</h2>
+        <p>Three views Beacon keeps front and center — where outages are happening, how fast your services respond, and how reliable they've been over time.</p>
       </div>
 
       <div class="intel-grid">
         <article class="panel">
-          <h3>Storm systems tracking</h3>
+          <h3>Outage tracking</h3>
           <div class="panel-visual">
             <div class="storm-dot-grid" aria-hidden="true"></div>
             <div class="storm-cell" style="top:18px; left:60px;"></div>
@@ -749,11 +1219,11 @@
             <div class="storm-label" style="top:8px; left:64px;">P1</div>
             <div class="storm-label" style="top:50px; left:194px;">P2</div>
           </div>
-          <p class="panel-caption">Incident timeline · major storm (P1) · 12:35–13:05 GMT</p>
+          <p class="panel-caption">Incident timeline · major outage (P1) · 12:35–13:05 GMT</p>
         </article>
 
         <article class="panel">
-          <h3>Fleet response times</h3>
+          <h3>Response time monitoring</h3>
           <div class="panel-visual">
             <svg class="chart-svg" viewBox="0 0 400 140" preserveAspectRatio="none">
               <line x1="0" y1="35" x2="400" y2="35" stroke="rgba(201,163,92,.18)" stroke-width="1"/>
@@ -767,11 +1237,11 @@
             </svg>
             <div class="chart-scan" aria-hidden="true"></div>
           </div>
-          <p class="panel-caption">Average response 243ms · storm peak 500ms</p>
+          <p class="panel-caption">Average response 243ms · incident peak 500ms</p>
         </article>
 
         <article class="panel">
-          <h3>Uptime harbor mastery</h3>
+          <h3>Uptime reliability</h3>
           <div class="panel-visual">
             <svg class="chart-svg" viewBox="0 0 220 140" preserveAspectRatio="none">
               <rect x="30" y="30" width="160" height="80" fill="#13314a"/>
@@ -786,15 +1256,15 @@
               <path d="M12 17V6l6 6z"/>
             </svg>
           </div>
-          <p class="panel-caption">Fleet uptime 99.3% · harbor health</p>
+          <p class="panel-caption">Overall uptime 99.3% · 30-day reliability</p>
         </article>
       </div>
     </section>
 
     <!-- ===== CTA ===== -->
     <section class="cta" id="cta">
-      <h2>Deploy the Beacon</h2>
-      <p>Stand watch over every vessel in your stack — set up takes minutes.</p>
+      <h2>Start monitoring in minutes</h2>
+      <p>Connect the AI APIs and apps you rely on, and get instant visibility into uptime, latency, and incidents.</p>
       <a href="#" class="btn-primary">
         <span class="wheel-svg" aria-hidden="true">
           <svg width="24" height="24" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -814,13 +1284,13 @@
             </g>
           </svg>
         </span>
-        Explore live fleet
+        Go to the dashboard
       </a>
     </section>
   </div>
 
   <footer class="site-footer">
-    <div class="wrap">Beacon · Know your fleet, before the storm.</div>
+    <div class="wrap">Beacon · Real-time status monitoring for the AI services you depend on.</div>
   </footer>
 
 <script>
@@ -833,9 +1303,9 @@
         }
       });
     }, { threshold: .2 });
-    document.querySelectorAll('.stage, .panel').forEach(function(el){ observer.observe(el); });
+    document.querySelectorAll('.stage, .panel, .story-panel, .browser-frame, .arch-diagram-wrap, .arch-card').forEach(function(el){ observer.observe(el); });
   } else {
-    document.querySelectorAll('.stage, .panel').forEach(function(el){ el.classList.add('in-view'); });
+    document.querySelectorAll('.stage, .panel, .story-panel, .browser-frame, .arch-diagram-wrap, .arch-card').forEach(function(el){ el.classList.add('in-view'); });
   }
 </script>
 

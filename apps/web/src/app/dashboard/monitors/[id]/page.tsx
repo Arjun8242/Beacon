@@ -98,14 +98,14 @@ export default function MonitorDetailPage() {
   // Handle delete
   const handleDelete = async () => {
     if (!monitor) return;
-    if (!confirm(`Are you sure you want to decommission "${monitor.name}"? This action is permanent.`)) {
+    if (!confirm(`Are you sure you want to delete "${monitor.name}"? This action is permanent.`)) {
       return;
     }
     try {
       await api.deleteMonitor(monitor.id);
       router.push('/dashboard');
     } catch (err: any) {
-      alert(`Failed to decommission: ${err.message}`);
+      alert(`Failed to delete: ${err.message}`);
     }
   };
 
@@ -127,9 +127,9 @@ export default function MonitorDetailPage() {
     return (
       <div className="panel-dark" style={{ textAlign: 'center', padding: '3rem', margin: '2rem 0' }}>
         <svg style={{ margin: '0 auto 1.5rem', color: 'var(--storm)' }} width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-        <h3>Vessel Signal Lost</h3>
+        <h3>Monitor Disconnected</h3>
         <p style={{ color: 'var(--text-secondary)', maxWidth: '28rem', margin: '0.5rem auto 1.5rem' }}>{error}</p>
-        <Link href="/dashboard" className="btn-primary">Back to Harbor Overview</Link>
+        <Link href="/dashboard" className="btn-primary">Back to Dashboard</Link>
       </div>
     );
   }
@@ -149,8 +149,8 @@ export default function MonitorDetailPage() {
       {/* ===== Monitor Header Area ===== */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
-          <span style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--gold)', fontWeight: 600 }}>Vessel Detail</span>
-          <h2 style={{ fontFamily: 'Cinzel, serif', fontSize: '1.6rem', margin: '0.2rem 0 0.15rem', color: 'var(--parchment)' }}>
+          <span style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--gold)', fontWeight: 600 }}>Monitor Detail</span>
+          <h2 style={{ fontFamily: 'var(--ff-display, Fraunces, Georgia, serif)', fontSize: '1.6rem', margin: '0.2rem 0 0.15rem', color: 'var(--parchment)', letterSpacing: '-.01em', fontWeight: 700 }}>
             {monitor.name}
           </h2>
           <a href={monitor.url} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', opacity: 0.8, textDecoration: 'underline' }}>
@@ -166,7 +166,7 @@ export default function MonitorDetailPage() {
             {monitor.active ? 'Pause Watch' : 'Resume Watch'}
           </button>
           <button onClick={handleDelete} className="btn-primary" style={{ fontSize: '0.8rem', padding: '0.5rem 1rem', background: 'linear-gradient(180deg, #bf3b2c, #8a2a1f)', color: 'var(--lh-white)', border: '1px solid #8a2a1f', boxShadow: 'none' }}>
-            Decommission
+            Delete
           </button>
         </div>
       </div>
@@ -188,7 +188,7 @@ export default function MonitorDetailPage() {
             {monitor.active ? (monitor.status === 'UP' ? 'Calm' : monitor.status === 'DEGRADED' ? 'Rough' : 'Storm') : 'Paused'}
           </p>
           <p className="stat-sub">
-            {monitor.active ? `Reporting normally every ${monitor.interval}s` : 'Vessel is currently docked/paused'}
+            {monitor.active ? `Reporting normally every ${monitor.interval}s` : 'Monitor is currently paused'}
           </p>
         </div>
 
@@ -217,7 +217,7 @@ export default function MonitorDetailPage() {
       {/* ===== Latency Chart Panel ===== */}
       <section className="panel-dark" style={{ marginBottom: '1.5rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-          <h2 style={{ margin: 0 }}>Vessel Latency Profile</h2>
+          <h2 style={{ margin: 0 }}>Monitor Latency Profile</h2>
           <div className="time-filter">
             <button className={`time-filter-btn ${windowType === '24h' ? 'active' : ''}`} onClick={() => setWindowType('24h')}>24h</button>
             <button className={`time-filter-btn ${windowType === '7d' ? 'active' : ''}`} onClick={() => setWindowType('7d')}>7 Days</button>
@@ -358,7 +358,7 @@ export default function MonitorDetailPage() {
 
           {incidents.length === 0 ? (
             <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)', opacity: 0.6, fontSize: '0.85rem' }}>
-              No storms recorded. Secure harbor.
+              No incidents recorded. All systems operational.
             </div>
           ) : (
             <>

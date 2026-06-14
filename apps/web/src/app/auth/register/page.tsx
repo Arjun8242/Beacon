@@ -32,12 +32,12 @@ export default function RegisterPage() {
     setError(null);
 
     if (password !== confirmPassword) {
-      setError('Voyage keys do not match!');
+      setError('Passwords do not match!');
       return;
     }
 
     if (password.length < 8) {
-      setError('Voyage key must be at least 8 characters long.');
+      setError('Password must be at least 8 characters long.');
       return;
     }
 
@@ -50,7 +50,7 @@ export default function RegisterPage() {
       router.refresh();
     } catch (err: any) {
       console.error(err);
-      setError(err.message || 'Failed to commission fleet or connection error');
+      setError(err.message || 'Failed to create account or connection error');
     } finally {
       setIsLoading(false);
     }
@@ -109,7 +109,7 @@ export default function RegisterPage() {
 
       <main className="auth-stage">
         <section className="auth-card">
-          <h1>Commission a Fleet</h1>
+          <h1>Create an Account</h1>
           <p className="subtitle">Establish Harbor Credentials</p>
 
           {error && (
@@ -129,12 +129,12 @@ export default function RegisterPage() {
           )}
 
           <form onSubmit={handleSubmit}>
-            <label className="field-label" htmlFor="email">Fleet Email / Harbor Ident</label>
+            <label className="field-label" htmlFor="email">Email Address</label>
             <div className="input-wrap">
               <input
                 type="email"
                 id="email"
-                placeholder="fleetadmin@example.voyage"
+                placeholder="admin@example.com"
                 autoComplete="username"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -147,7 +147,7 @@ export default function RegisterPage() {
               </svg>
             </div>
 
-            <label className="field-label" htmlFor="key">Voyage Key / Password</label>
+            <label className="field-label" htmlFor="key">Password</label>
             <div className="input-wrap">
               <input
                 type="password"
@@ -165,13 +165,13 @@ export default function RegisterPage() {
               </svg>
             </div>
 
-            <label className="field-label" htmlFor="confirm-key">Confirm Voyage Key</label>
+            <label className="field-label" htmlFor="confirm-key">Confirm Password</label>
             <div className="input-wrap">
               <input
                 type="password"
                 id="confirm-key"
                 autoComplete="new-password"
-                placeholder="Repeat voyage key"
+                placeholder="Repeat password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 disabled={isLoading}
@@ -183,7 +183,7 @@ export default function RegisterPage() {
               </svg>
             </div>
 
-            <label className="field-label" htmlFor="passkey">Secure Voyage Passkey</label>
+            <label className="field-label" htmlFor="passkey">Secure Passkey</label>
             <div className="input-wrap">
               <input
                 type="text"
@@ -214,7 +214,7 @@ export default function RegisterPage() {
                   </g>
                 </svg>
               </span>
-              <span>{isLoading ? 'Commissioning...' : 'Commission Fleet'}</span>
+              <span>{isLoading ? 'Creating...' : 'Create Account'}</span>
               <span className="mini-lighthouse" aria-hidden="true">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                   <path d="M9 22h6l-1-4H10z" opacity=".5"/>
@@ -253,10 +253,10 @@ export default function RegisterPage() {
               <path d="M60 24 L68 60 L60 96 L52 60 Z" fill="var(--gold)" opacity=".8"/>
               <path d="M60 24 L68 60 L60 60 Z" fill="var(--lh-red)"/>
             </g>
-            <text x="60" y="14" text-anchor="middle" fontFamily="Cinzel, serif" fontSize="11" fill="var(--parchment)">N</text>
-            <text x="60" y="112" text-anchor="middle" fontFamily="Cinzel, serif" fontSize="11" fill="var(--parchment)">S</text>
-            <text x="8" y="64" text-anchor="middle" fontFamily="Cinzel, serif" fontSize="11" fill="var(--parchment)">W</text>
-            <text x="112" y="64" text-anchor="middle" fontFamily="Cinzel, serif" fontSize="11" fill="var(--parchment)">E</text>
+            <text x="60" y="14" text-anchor="middle" fontFamily="Fraunces, Georgia, serif" fontSize="11" fill="var(--parchment)">N</text>
+            <text x="60" y="112" text-anchor="middle" fontFamily="Fraunces, Georgia, serif" fontSize="11" fill="var(--parchment)">S</text>
+            <text x="8" y="64" text-anchor="middle" fontFamily="Fraunces, Georgia, serif" fontSize="11" fill="var(--parchment)">W</text>
+            <text x="112" y="64" text-anchor="middle" fontFamily="Fraunces, Georgia, serif" fontSize="11" fill="var(--parchment)">E</text>
           </svg>
         </div>
 

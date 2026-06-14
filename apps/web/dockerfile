@@ -1,0 +1,71 @@
+# ─── Stage 1: Dependencies ────────────────────────────────────────────────────
+FROM node:20-alpine AS deps
+
+# Install openssl for Prisma CLI postinstall script during pnpm install
+RUN apk add --no-cache openssl
+
+RUN corepack enable && corepack prepare pnpm@9.0.0 --activate
+
+WORKDIR /app
+
+COPY pnpm-workspace.yaml ./
+COPY pnpm-lock.yaml ./
+COPY package.json ./
+
+COPY apps/api/package.json          ./apps/api/
+COPY apps/scheduler/package.json    ./apps/scheduler/
+COPY apps/worker/package.json       ./apps/worker/
+COPY apps/web/package.json          ./apps/web/
+COPY packages/database/package.json ./packages/database/
+COPY packages/queue/package.json    ./packages/queue/
+COPY packages/shared/package.json   ./packages/shared/
+
+RUN pnpm install --frozen-lockfile
+
+# ─── Stage 2: Builder ─────────────────────────────────────────────────────────
+FROM node:20-alpine AS builder
+
+RUN corepack enable && corepack prepare pnpm@9.0.0 --activate
+
+WORKDIR /app
+
+COPY --from=deps /app/node_modules         ./node_modules
+COPY --from=deps /app/apps/web/node_modules ./apps/web/node_modules
+COPY --from=deps /app/packages             ./packages
+
+COPY pnpm-workspace.yaml ./
+COPY pnpm-lock.yaml ./
+COPY package.json ./
+
+COPY apps/web/ ./apps/web/
+COPY packages/ ./packages/
+
+# Update the API URL to point to the internal service name in production
+ENV NEXT_PUBLIC_API_URL=http://api:3001
+
+RUN pnpm --filter web build
+
+# ─── Stage 3: Production runner ───────────────────────────────────────────────
+FROM node:20-alpine AS runner
+
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
+
+# Copy the standalone Next.js output
+COPY --from=builder /app/apps/web/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
+COPY --from=builder /app/apps/web/public ./apps/web/public
+
+USER nextjs
+
+EXPOSE 3000
+
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+CMD ["node", "apps/web/server.js"]

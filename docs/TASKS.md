@@ -199,24 +199,24 @@
 
 #### Testing
 
-- [ ] Unit tests: `determineStatus()`, `calculateUptimePercent()`, `slugify()` `M`
-- [ ] Unit tests: incident detection logic (open, resolve, threshold) `M`
-- [ ] Integration tests: auth routes (register, login, me) `M`
-- [ ] Integration tests: monitor CRUD routes `M`
-- [ ] Integration tests: metrics routes with seeded check data `M`
+- [x] Unit tests: `determineStatus()`, `calculateUptimePercent()`, `slugify()` `M`
+- [x] Unit tests: incident detection logic (open, resolve, threshold) `M`
+- [x] Integration tests: auth routes (register, login, me) `M`
+- [x] Integration tests: monitor CRUD routes `M`
+- [x] Integration tests: metrics routes with seeded check data `M`
 
 #### Docker and Deployment
 
-- [ ] Write `Dockerfile` for `apps/api` `S`
-- [ ] Write `Dockerfile` for `apps/scheduler` `S`
-- [ ] Write `Dockerfile` for `apps/worker` `S`
-- [ ] Write `Dockerfile` for `apps/web` `S`
-- [ ] Create `docker-compose.prod.yml` with all services, networks, health checks `M`
-- [ ] Verify full system boot with `docker compose up` in under 3 minutes `M`
+- [x] Write `Dockerfile` for `apps/api` `S`
+- [x] Write `Dockerfile` for `apps/scheduler` `S`
+- [x] Write `Dockerfile` for `apps/worker` `S`
+- [x] Write `Dockerfile` for `apps/web` `S`
+- [x] Create `docker-compose.prod.yml` with all services, networks, health checks `M`
+- [x] Verify full system boot with `docker compose up` in under 3 minutes `M`
 
 #### Database Management
 
-- [ ] Create `jobs/dataRetention.ts` — cron job running daily to delete `Check` records older than 30 days `S`
+- [x] Create `jobs/dataRetention.ts` — cron job running daily to delete `Check` records older than 30 days `S`
 
 #### Documentation
 

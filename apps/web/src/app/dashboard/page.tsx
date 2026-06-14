@@ -84,7 +84,7 @@ export default function DashboardPage() {
 
     // Simple validation
     if (!formName.trim() || !formUrl.trim()) {
-      setFormError('Vessel name and target URL are required.');
+      setFormError('Monitor name and target URL are required.');
       setFormLoading(false);
       return;
     }
@@ -115,7 +115,7 @@ export default function DashboardPage() {
       loadDashboardData(false);
     } catch (err: any) {
       console.error(err);
-      setFormError(err.message || 'Failed to commission vessel.');
+      setFormError(err.message || 'Failed to add monitor.');
     } finally {
       setFormLoading(false);
     }
@@ -137,7 +137,7 @@ export default function DashboardPage() {
 
   const handleDelete = async (e: React.MouseEvent, id: string, name: string) => {
     e.stopPropagation(); // Prevent card navigation
-    if (!confirm(`Are you sure you want to decommission and delete "${name}"? This will erase all logs.`)) {
+    if (!confirm(`Are you sure you want to delete "${name}"? This will erase all logs.`)) {
       return;
     }
 
@@ -145,7 +145,7 @@ export default function DashboardPage() {
       await api.deleteMonitor(id);
       loadDashboardData(false);
     } catch (err: any) {
-      alert(`Decommissioning failed: ${err.message}`);
+      alert(`Delete failed: ${err.message}`);
     }
   };
 
@@ -195,17 +195,17 @@ export default function DashboardPage() {
         <div className="stat-card">
           <svg className="bg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 2v6M9 6l3-4 3 4"/><path d="M5 11h14l-1.5 7a2 2 0 0 1-2 1.6H8.5a2 2 0 0 1-2-1.6z"/></svg>
           <div className="stat-top">
-            Operational vessels
+            Operational Monitors
             <span className="status-pill on-parchment green">Operational</span>
           </div>
           <p className="stat-value">{summary.up}</p>
-          <p className="stat-sub">{summary.active} monitored stack vessels</p>
+          <p className="stat-sub">{summary.active} active monitors</p>
         </div>
 
         <div className="stat-card">
           <svg className="bg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M4 17h12a3 3 0 0 0 0-6 5 5 0 0 0-9.7-1.5A4 4 0 0 0 4 17z"/></svg>
           <div className="stat-top">
-            Degraded signals
+            Degraded Monitors
             <span className="status-pill on-parchment amber">Degraded</span>
           </div>
           <p className="stat-value">{summary.degraded}</p>
@@ -225,10 +225,10 @@ export default function DashboardPage() {
         <div className="stat-card">
           <svg className="bg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
           <div className="stat-top">
-            Fleet Uptime
+            Overall Uptime
           </div>
           <p className="stat-value">{overallUptime.toFixed(2)}%</p>
-          <p className="stat-sub">24-hour average across fleet</p>
+          <p className="stat-sub">24-hour average</p>
           <div className="stat-bar">
             <span style={{ 
               width: `${overallUptime}%`, 
@@ -238,10 +238,58 @@ export default function DashboardPage() {
         </div>
       </section>
 
+      {/* ===== Signal Network Card ===== */}
+      <section className="panel-dark" style={{ marginBottom: '2.5rem' }}>
+        <h2 style={{ fontSize: '1.1rem', marginBottom: '1.5rem', color: 'var(--parchment)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+          Signal Network
+        </h2>
+        
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <pre style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '1rem', lineHeight: '1.6', background: 'transparent', padding: 0, margin: 0, overflow: 'visible' }}>
+{`                 `}
+<span style={{ color: 'var(--gold)' }}>Beacon</span>{`
+                    🗼
+                    │
+`}
+{filteredMonitors.length > 0 ? filteredMonitors.slice(0, 8).map((m, i, arr) => {
+  const isActive = m.active !== false;
+  let color = 'var(--text-secondary)';
+  let lineChar = '┤';
+  
+  if (isActive) {
+    if (m.status === 'UP') color = 'var(--calm)';
+    else if (m.status === 'DEGRADED') color = 'var(--rough)';
+    else { color = 'var(--storm)'; lineChar = '✕'; }
+  } else {
+    color = '#555';
+  }
+  
+  let name = m.name;
+  if (name.length > 18) {
+    name = name.substring(0, 15) + '...';
+  }
+  
+  const paddingLen = 20 - name.length;
+  const line = name + ' ' + '─'.repeat(Math.max(0, paddingLen - 1));
+  
+  return (
+    <React.Fragment key={m.id}>
+      <span style={{ color }}>{line}{lineChar}</span>
+      {i < arr.length - 1 ? '\n                    │\n' : '\n'}
+    </React.Fragment>
+  );
+}) : (
+  <span style={{ color: '#555' }}>{`Awaiting Services ──✕\n`}</span>
+)}
+          </pre>
+        </div>
+      </section>
+
       {/* ===== Vessel Section ===== */}
       <section className="vessel-section">
         <div className="section-header">
-          <h2>Commissioned Vessels</h2>
+          <h2>Active Monitors</h2>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             <div className="tabs">
               <button className={`tab ${filter === 'ALL' ? 'active' : ''}`} onClick={() => setFilter('ALL')}>All ({monitors.length})</button>
@@ -249,7 +297,7 @@ export default function DashboardPage() {
               <button className={`tab ${filter === 'PAUSED' ? 'active' : ''}`} onClick={() => setFilter('PAUSED')}>Paused ({summary.paused})</button>
             </div>
             <button className="btn-primary" style={{ fontSize: '0.8rem', padding: '0.5rem 1rem' }} onClick={() => setIsModalOpen(true)}>
-              Commission Vessel
+              Add Monitor
             </button>
           </div>
         </div>
@@ -260,9 +308,9 @@ export default function DashboardPage() {
               <path d="M10 70h140l-14 22H24z" fill="var(--gold)"/>
               <line x1="80" y1="70" x2="80" y2="14" stroke="var(--gold)" strokeWidth="3"/>
             </svg>
-            <h3>No Vessels Chartered</h3>
-            <p>You haven't added any API or web services to monitor. Chart your first vessel now.</p>
-            <button className="btn-primary" onClick={() => setIsModalOpen(true)}>Charter First Vessel</button>
+            <h3>No Monitors Added</h3>
+            <p>You haven't added any API or web services to monitor. Add your first monitor now.</p>
+            <button className="btn-primary" onClick={() => setIsModalOpen(true)}>Add First Monitor</button>
           </div>
         ) : (
           <div className="vessel-grid">
@@ -336,7 +384,7 @@ export default function DashboardPage() {
                       <button 
                         className="btn-delete"
                         onClick={(e) => handleDelete(e, monitor.id, monitor.name)}
-                        title="Decommission Vessel"
+                        title="Delete Monitor"
                       >
                         Remove
                       </button>
@@ -357,7 +405,7 @@ export default function DashboardPage() {
             <table className="checks-table">
               <thead>
                 <tr>
-                  <th>Vessel</th>
+                  <th>Monitor</th>
                   <th>Storm Trigger</th>
                   <th>Storm Resolved</th>
                   <th>Duration</th>
@@ -400,7 +448,7 @@ export default function DashboardPage() {
             <button className="modal-close" onClick={() => setIsModalOpen(false)}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
-            <h2>Charter New Vessel</h2>
+            <h2>Add Monitor</h2>
             
             {formError && (
               <div style={{
@@ -419,7 +467,7 @@ export default function DashboardPage() {
             )}
 
             <form onSubmit={handleCreateMonitor}>
-              <label className="field-label" htmlFor="mname">Vessel Call Name</label>
+              <label className="field-label" htmlFor="mname">Monitor Name</label>
               <div className="input-wrap">
                 <input
                   type="text"
@@ -445,7 +493,7 @@ export default function DashboardPage() {
                 />
               </div>
 
-              <label className="field-label" htmlFor="minterval">Beacon Signal Interval</label>
+              <label className="field-label" htmlFor="minterval">Check Interval</label>
               <div className="input-wrap">
                 <select
                   id="minterval"
@@ -463,10 +511,10 @@ export default function DashboardPage() {
 
               <div className="modal-actions">
                 <button type="button" className="modal-btn btn-cancel" onClick={() => setIsModalOpen(false)}>
-                  Retreat
+                  Cancel
                 </button>
                 <button type="submit" className="modal-btn btn-submit" disabled={formLoading}>
-                  {formLoading ? 'Commissioning...' : 'Charter Vessel'}
+                  {formLoading ? 'Adding...' : 'Add Monitor'}
                 </button>
               </div>
             </form>

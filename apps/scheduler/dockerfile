@@ -1,0 +1,65 @@
+# ─── Stage 1: Builder ─────────────────────────────────────────────────────────
+FROM node:20-bookworm-slim AS builder
+
+# Install system dependencies (Prisma needs openssl)
+RUN apt-get update && apt-get install -y openssl ca-certificates && rm -rf /var/lib/apt/lists/*
+
+RUN corepack enable && corepack prepare pnpm@9.0.0 --activate
+
+WORKDIR /app
+
+COPY pnpm-workspace.yaml ./
+COPY pnpm-lock.yaml ./
+COPY package.json ./
+
+COPY apps/api/package.json          ./apps/api/
+COPY apps/scheduler/package.json    ./apps/scheduler/
+COPY apps/worker/package.json       ./apps/worker/
+COPY apps/web/package.json          ./apps/web/
+COPY packages/database/package.json ./packages/database/
+COPY packages/queue/package.json    ./packages/queue/
+COPY packages/shared/package.json   ./packages/shared/
+
+RUN pnpm install --frozen-lockfile
+
+COPY packages/ ./packages/
+COPY apps/scheduler/ ./apps/scheduler/
+
+RUN pnpm --filter database db:generate
+RUN pnpm --filter scheduler build
+
+# ─── Stage 2: Production runner ───────────────────────────────────────────────
+FROM node:20-bookworm-slim AS runner
+
+# Install system dependencies (Prisma needs openssl)
+RUN apt-get update && apt-get install -y openssl ca-certificates && rm -rf /var/lib/apt/lists/*
+
+RUN corepack enable && corepack prepare pnpm@9.0.0 --activate
+
+WORKDIR /app
+
+COPY pnpm-workspace.yaml ./
+COPY pnpm-lock.yaml ./
+COPY package.json ./
+
+COPY apps/api/package.json          ./apps/api/
+COPY apps/scheduler/package.json    ./apps/scheduler/
+COPY apps/worker/package.json       ./apps/worker/
+COPY apps/web/package.json          ./apps/web/
+COPY packages/database/package.json ./packages/database/
+COPY packages/queue/package.json    ./packages/queue/
+COPY packages/shared/package.json   ./packages/shared/
+
+# Production-only install
+RUN pnpm install --frozen-lockfile --prod --ignore-scripts
+
+COPY --from=builder /app/apps/scheduler/dist   ./apps/scheduler/dist
+COPY --from=builder /app/packages/database     ./packages/database
+COPY --from=builder /app/packages/shared       ./packages/shared
+COPY --from=builder /app/packages/queue        ./packages/queue
+
+COPY packages/database/prisma ./packages/database/prisma
+
+ENV NODE_ENV=production
+
+CMD ["node", "apps/scheduler/dist/index.js"]

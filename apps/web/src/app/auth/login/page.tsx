@@ -99,7 +99,7 @@ export default function LoginPage() {
       <main className="auth-stage">
         <section className="auth-card">
           <h1>Signal the Beacon</h1>
-          <p className="subtitle">Secure Harbor Access</p>
+          <p className="subtitle">Sign in to your account</p>
 
           {error && (
             <div style={{
@@ -118,12 +118,12 @@ export default function LoginPage() {
           )}
 
           <form onSubmit={handleSubmit}>
-            <label className="field-label" htmlFor="email">Fleet Email / Harbor Ident</label>
+            <label className="field-label" htmlFor="email">Email Address</label>
             <div className="input-wrap">
               <input
                 type="email"
                 id="email"
-                placeholder="fleetadmin@example.voyage"
+                placeholder="admin@example.com"
                 autoComplete="username"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -136,7 +136,7 @@ export default function LoginPage() {
               </svg>
             </div>
 
-            <label className="field-label" htmlFor="key">Voyage Key / Password</label>
+            <label className="field-label" htmlFor="key">Password</label>
             <div className="input-wrap">
               <input
                 type="password"
@@ -160,10 +160,10 @@ export default function LoginPage() {
                 onChange={(e) => setRemember(e.target.checked)}
                 disabled={isLoading}
               />
-              Remember this Harbor
+              Remember me
             </label>
 
-            <label className="field-label" htmlFor="passkey">Secure Voyage Passkey</label>
+            <label className="field-label" htmlFor="passkey">Secure Passkey</label>
             <div className="input-wrap">
               <input
                 type="text"
@@ -194,7 +194,7 @@ export default function LoginPage() {
                   </g>
                 </svg>
               </span>
-              <span>{isLoading ? 'Entering...' : 'Enter Harbor'}</span>
+              <span>{isLoading ? 'Signing In...' : 'Sign In'}</span>
               <span className="mini-lighthouse" aria-hidden="true">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                   <path d="M9 22h6l-1-4H10z" opacity=".5"/>
@@ -206,8 +206,8 @@ export default function LoginPage() {
           </form>
 
           <div className="links-below">
-            <p>Don't have a harbor? <Link href="/auth/register">Create a New Fleet</Link></p>
-            <p>Forgot Voyage Key? <a href="#">Signal Support</a></p>
+            <p>Don't have an account? <Link href="/auth/register">Create an Account</Link></p>
+            <p>Forgot Password? <a href="#">Contact Support</a></p>
           </div>
         </section>
       </main>
@@ -234,10 +234,10 @@ export default function LoginPage() {
               <path d="M60 24 L68 60 L60 96 L52 60 Z" fill="var(--gold)" opacity=".8"/>
               <path d="M60 24 L68 60 L60 60 Z" fill="var(--lh-red)"/>
             </g>
-            <text x="60" y="14" text-anchor="middle" fontFamily="Cinzel, serif" fontSize="11" fill="var(--parchment)">N</text>
-            <text x="60" y="112" text-anchor="middle" fontFamily="Cinzel, serif" fontSize="11" fill="var(--parchment)">S</text>
-            <text x="8" y="64" text-anchor="middle" fontFamily="Cinzel, serif" fontSize="11" fill="var(--parchment)">W</text>
-            <text x="112" y="64" text-anchor="middle" fontFamily="Cinzel, serif" fontSize="11" fill="var(--parchment)">E</text>
+            <text x="60" y="14" text-anchor="middle" fontFamily="Fraunces, Georgia, serif" fontSize="11" fill="var(--parchment)">N</text>
+            <text x="60" y="112" text-anchor="middle" fontFamily="Fraunces, Georgia, serif" fontSize="11" fill="var(--parchment)">S</text>
+            <text x="8" y="64" text-anchor="middle" fontFamily="Fraunces, Georgia, serif" fontSize="11" fill="var(--parchment)">W</text>
+            <text x="112" y="64" text-anchor="middle" fontFamily="Fraunces, Georgia, serif" fontSize="11" fill="var(--parchment)">E</text>
           </svg>
         </div>
 

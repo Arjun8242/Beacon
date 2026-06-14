@@ -1,0 +1,152 @@
+version: '3.8'
+
+networks:
+  uptime_net:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
+
+services:
+  # ─── Infrastructure ───────────────────────────────────────────────────────
+  postgres:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: arjun8242`
+      POSTGRES_DB: uptime-monitor
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - uptime_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d uptime-monitor"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: redis-server --save 60 1 --loglevel warning
+    volumes:
+      - redis_data:/data
+    networks:
+      - uptime_net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # ─── Migrate (runs once, then exits) ─────────────────────────────────────
+  migrate:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+      target: builder
+    command: >
+      sh -c "cd packages/database && npx prisma migrate deploy"
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+    networks:
+      - uptime_net
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: on-failure
+
+  # ─── Application Services ─────────────────────────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      API_PORT: 3001
+      JWT_SECRET: ${JWT_SECRET}
+      BCRYPT_COST: ${BCRYPT_COST:-10}
+      NODE_ENV: production
+    ports:
+      - "${API_PORT:-3001}:3001"
+    networks:
+      - uptime_net
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3001/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  scheduler:
+    build:
+      context: .
+      dockerfile: apps/scheduler/Dockerfile
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      SCHEDULER_INTERVAL_MS: ${SCHEDULER_INTERVAL_MS:-30000}
+      NODE_ENV: production
+    networks:
+      - uptime_net
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
+  worker:
+    build:
+      context: .
+      dockerfile: apps/worker/Dockerfile
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      WORKER_CONCURRENCY: ${WORKER_CONCURRENCY:-10}
+      NODE_ENV: production
+    networks:
+      - uptime_net
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      NEXT_TELEMETRY_DISABLED: 1
+      # Rewrites proxy to api service name inside the Docker network
+      API_URL: http://api:3001
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+    networks:
+      - uptime_net
+    depends_on:
+      api:
+        condition: service_healthy

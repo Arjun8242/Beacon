@@ -59,10 +59,10 @@ export default function DashboardLayout({
         justifyContent: 'center',
         background: 'var(--bg-deep)',
         color: 'var(--parchment)',
-        fontFamily: 'Cinzel, serif'
+        fontFamily: 'Fraunces, Georgia, serif'
       }}>
         <div style={{ textAlign: 'center' }}>
-          <h2>Navigating to Safe Harbor...</h2>
+          <h2>Loading Dashboard...</h2>
           <div className="skeleton" style={{ width: '120px', height: '4px', margin: '1rem auto' }}></div>
         </div>
       </div>
@@ -95,9 +95,9 @@ export default function DashboardLayout({
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg>
             Overview
           </Link>
-          <a href="#watchlist">
+          <a href="#monitors">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-            Watchlist
+            Monitors
           </a>
           <a href="#" className="relative">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3 2 20h20z"/><path d="M12 9v5"/><circle cx="12" cy="17" r=".6" fill="currentColor"/></svg>
@@ -106,11 +106,11 @@ export default function DashboardLayout({
           </a>
         </nav>
 
-        <div className="quick-watch" id="watchlist">
-          <p className="sidebar-eyebrow">Watchlist</p>
-          <p className="sidebar-title" style={{ fontSize: '.85rem', marginBottom: '.6rem' }}>Monitored services</p>
+        <div className="quick-watch" id="monitors">
+          <p className="sidebar-eyebrow">Monitors</p>
+          <p className="sidebar-title" style={{ fontSize: '.85rem', marginBottom: '.6rem' }}>Active Monitors</p>
           {watchlist.length === 0 ? (
-            <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', padding: '0 0.5rem', opacity: 0.6 }}>No vessels registered.</p>
+            <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', padding: '0 0.5rem', opacity: 0.6 }}>No monitors registered.</p>
           ) : (
             <ul className="qw-list">
               {watchlist.map((monitor) => (
@@ -139,11 +139,11 @@ export default function DashboardLayout({
       <main className="main-dashboard">
         <div className="topbar-dash">
           <div>
-            <h1>Command Deck</h1>
+            <h1>Dashboard</h1>
             <p className="topbar-dash-sub">
               {watchlist.length > 0
                 ? `${watchlist.filter(m => m.status === 'UP' && m.active).length} of ${watchlist.filter(m => m.active).length} operational · live reporting`
-                : 'Welcome, Captain. Commission your first vessel.'
+                : 'Welcome. Add your first monitor.'
               }
             </p>
           </div>
