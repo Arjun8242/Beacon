@@ -4,7 +4,7 @@ const nextConfig = {
   output: 'standalone',
 
   async rewrites() {
-    const apiBase = process.env.API_URL ?? 'http://localhost:3001';
+    const apiBase = process.env.NEXT_PUBLIC_API_URL;
     return [
       {
         source: '/api/v1/:path*',

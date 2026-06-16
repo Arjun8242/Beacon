@@ -21,6 +21,7 @@ async function main() {
       id: 'seed-monitor-001',
       userId: user.id,
       name: 'Google',
+      slug:'google',
       url: 'https://www.google.com',
       interval: 60,
       nextCheckAt: new Date(),

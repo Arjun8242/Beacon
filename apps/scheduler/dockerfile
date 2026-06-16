@@ -26,6 +26,10 @@ COPY packages/ ./packages/
 COPY apps/scheduler/ ./apps/scheduler/
 
 RUN pnpm --filter database db:generate
+# Build packages in dependency order before the app
+RUN pnpm --filter shared build
+RUN pnpm --filter queue build
+RUN pnpm --filter database build
 RUN pnpm --filter scheduler build
 
 # ─── Stage 2: Production runner ───────────────────────────────────────────────
@@ -53,12 +57,20 @@ COPY packages/shared/package.json   ./packages/shared/
 # Production-only install
 RUN pnpm install --frozen-lockfile --prod --ignore-scripts
 
-COPY --from=builder /app/apps/scheduler/dist   ./apps/scheduler/dist
-COPY --from=builder /app/packages/database     ./packages/database
-COPY --from=builder /app/packages/shared       ./packages/shared
-COPY --from=builder /app/packages/queue        ./packages/queue
+# ✅ Copy compiled app dist
+COPY --from=builder /app/apps/scheduler/dist                         ./apps/scheduler/dist
 
-COPY packages/database/prisma ./packages/database/prisma
+# ✅ Copy ONLY the compiled dist/ of each package (not src/)
+COPY --from=builder /app/packages/shared/dist                        ./packages/shared/dist
+COPY --from=builder /app/packages/queue/dist                         ./packages/queue/dist
+COPY --from=builder /app/packages/database/dist                      ./packages/database/dist
+
+# Copy pnpm virtual store which contains the Prisma generated client
+# pnpm does NOT create per-package node_modules/.prisma; the client lives in the root .pnpm store
+COPY --from=builder /app/node_modules/.pnpm                         ./node_modules/.pnpm
+
+# Prisma schema is needed by the runtime query engine
+COPY packages/database/prisma                                        ./packages/database/prisma
 
 ENV NODE_ENV=production
 

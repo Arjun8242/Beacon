@@ -1,8 +1,17 @@
 {
   "name": "database",
   "version": "1.0.0",
-  "main": "src/index.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./dist/index.js",
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
   "scripts": {
+    "build": "tsc",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:seed": "ts-node src/seed.ts"
@@ -12,9 +21,10 @@
     "bcryptjs": "^2.4.3"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^20.0.0",
     "prisma": "^5.0.0",
-    "typescript": "^5.0.0",
     "ts-node": "^10.9.0",
-    "@types/bcryptjs": "^2.4.6"
+    "typescript": "^5.0.0"
   }
 }

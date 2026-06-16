@@ -1,3 +1,4 @@
 {
-    "prisma.pinToPrisma6": true
+    "prisma.pinToPrisma6": true,
+    "livePreview.defaultPreviewPath": "/packages/database/prisma/migrations/20260531181815_init/portfolio.html"
 }
