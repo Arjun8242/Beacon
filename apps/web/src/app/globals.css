@@ -2039,3 +2039,122 @@ label.field-label {
   .topbar-dash-actions { width: 100%; justify-content: space-between; margin-top: 0.5rem; }
 }
 
+/* ===== Auth Page Top Navigation ===== */
+.topnav {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 2rem;
+}
+.topnav .brand {
+  color: var(--parchment);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  font-family: var(--ff-display), serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: .06em;
+}
+.topnav .brand svg { color: var(--gold); }
+.topnav .signup {
+  border: 1px solid var(--gold);
+  border-radius: 6px;
+  padding: .4rem 1.1rem;
+  color: var(--gold) !important;
+  opacity: 1 !important;
+  font-size: .88rem;
+  text-decoration: none;
+  transition: background .2s ease, color .2s ease;
+}
+.topnav .signup:hover { background: var(--gold); color: var(--bg-deep) !important; }
+
+/* ===== Auth Page Lighthouse Scene ===== */
+.scene {
+  position: relative;
+  width: 260px;
+  height: 200px;
+  margin: 0.5rem auto;
+  z-index: 2;
+  overflow: hidden;
+  pointer-events: none;
+}
+/* Override hero beam-pivot position for the smaller auth scene */
+.scene .beam-pivot {
+  top: 12%;
+  left: 50%;
+  animation: sweep 10s ease-in-out infinite;
+}
+.scene .beam {
+  width: 340px;
+  height: 340px;
+  left: -170px;
+}
+.lighthouse {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 110px;
+  height: auto;
+  z-index: 2;
+}
+
+/* ===== Dashboard Filter Tabs ===== */
+.tabs {
+  display: flex;
+  background: rgba(9, 22, 36, 0.8);
+  border: 1px solid rgba(201, 163, 92, 0.2);
+  border-radius: 8px;
+  padding: 3px;
+  gap: 2px;
+}
+.tab {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-family: var(--ff-body);
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 0.38rem 0.9rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  letter-spacing: 0.01em;
+}
+.tab:hover {
+  color: var(--parchment);
+  background: rgba(255, 255, 255, 0.04);
+}
+.tab.active {
+  background: var(--bg-deep-2);
+  color: var(--parchment);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3), inset 0 0 0 1px rgba(201, 163, 92, 0.18);
+}
+
+/* ===== Password Show/Hide Toggle ===== */
+.password-toggle {
+  position: absolute;
+  right: .8rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--gold);
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.75;
+  transition: opacity 0.15s ease, color 0.15s ease;
+  z-index: 2;
+}
+.password-toggle:hover { opacity: 1; color: var(--parchment); }
+
+

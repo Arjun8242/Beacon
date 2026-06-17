@@ -21,6 +21,16 @@ describe('determineStatus', () => {
     expect(determineStatus(499)).toBe(CheckStatus.DEGRADED);
   });
 
+  it('should return DEGRADED if responseTime > 5000', () => {
+    expect(determineStatus(200, undefined, 5001)).toBe(CheckStatus.DEGRADED);
+    expect(determineStatus(200, undefined, 10000)).toBe(CheckStatus.DEGRADED);
+  });
+
+  it('should return UP if responseTime <= 5000', () => {
+    expect(determineStatus(200, undefined, 5000)).toBe(CheckStatus.UP);
+    expect(determineStatus(200, undefined, 200)).toBe(CheckStatus.UP);
+  });
+
   it('should return UP if statusCode is between 100 and 399', () => {
     expect(determineStatus(200)).toBe(CheckStatus.UP);
     expect(determineStatus(201)).toBe(CheckStatus.UP);

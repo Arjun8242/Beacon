@@ -26,7 +26,7 @@ export async function runCheck(url: string): Promise<CheckResult> {
   }
 
   const responseTime = Date.now() - startTime;
-  const checkStatus = determineStatus(statusCode ?? undefined, error ? new Error(error) : undefined);
+  const checkStatus = determineStatus(statusCode ?? undefined, error ? new Error(error) : undefined, responseTime);
 
   return { statusCode, responseTime, error, checkStatus };
 }

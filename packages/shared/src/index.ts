@@ -33,11 +33,11 @@ export type MonitorCheckJob = {
   url: string;
 };
 
-export function determineStatus(statusCode?: number, error?: Error): CheckStatus {
+export function determineStatus(statusCode?: number, error?: Error, responseTime?: number): CheckStatus {
   if (error || !statusCode || statusCode >= 500) {
     return CheckStatus.DOWN;
   }
-  if (statusCode >= 400) {
+  if (statusCode >= 400 || (responseTime !== undefined && responseTime > 5000)) {
     return CheckStatus.DEGRADED;
   }
   return CheckStatus.UP;

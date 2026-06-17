@@ -24,7 +24,12 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: 'Beacon — Uptime Monitor',
-  description: 'Distributed uptime monitoring for the AI services you depend on.',
+  description: 'Distributed uptime monitoring for the services you depend on.',
+  icons: {
+    icon: '/favicon.svg',
+    shortcut: '/favicon.svg',
+    apple: '/favicon.svg',
+  },
 };
 
 export default function RootLayout({

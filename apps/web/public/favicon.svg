@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Background -->
+  <rect width="64" height="64" rx="12" fill="#091624"/>
+  <!-- Shadow base -->
+  <ellipse cx="32" cy="60" rx="18" ry="3" fill="#060e18" opacity=".6"/>
+  <!-- Tower body -->
+  <path d="M20 56h24l-4-28H24z" fill="#c9a35c"/>
+  <!-- Red bands -->
+  <rect x="21" y="46" width="22" height="5" rx="1" fill="#bf3b2c"/>
+  <rect x="22" y="36" width="20" height="5" rx="1" fill="#bf3b2c"/>
+  <!-- Light room base -->
+  <rect x="22" y="24" width="20" height="4" rx="1" fill="#7a5228"/>
+  <!-- Light room glass -->
+  <rect x="24" y="14" width="16" height="11" rx="1" fill="#0d2236" stroke="#c9a35c" stroke-width="1.5"/>
+  <!-- Roof -->
+  <path d="M22 14l10-10 10 10z" fill="#bf3b2c"/>
+  <!-- Glow / light orb -->
+  <circle cx="32" cy="19" r="4" fill="#fff3cf"/>
+  <circle cx="32" cy="19" r="6" fill="#fff3cf" opacity=".25"/>
+  <!-- Beam rays -->
+  <path d="M26 13 L14 4" stroke="#fff3cf" stroke-width="1.5" stroke-linecap="round" opacity=".5"/>
+  <path d="M38 13 L50 4" stroke="#fff3cf" stroke-width="1.5" stroke-linecap="round" opacity=".5"/>
+  <path d="M24 16 L8 12" stroke="#fff3cf" stroke-width="1.5" stroke-linecap="round" opacity=".35"/>
+</svg>
