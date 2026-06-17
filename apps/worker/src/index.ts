@@ -1,3 +1,13 @@
+// Global error handlers to prevent silent crashes in production
+process.on('unhandledRejection', (err) => {
+  console.error('Worker Unhandled Rejection:', err);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('Worker Uncaught Exception:', err);
+  process.exit(1);
+});
+
 import './config/env';
 import { Worker } from 'bullmq';
 import { redisConnection, QUEUE_NAMES } from 'queue';

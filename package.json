@@ -10,7 +10,14 @@
     "db:push": "pnpm --filter database db:push",
     "db:generate": "pnpm --filter database db:generate",
     "test": "vitest run",
-    "postinstall": "pnpm run db:generate"
+    "postinstall": "pnpm run db:generate",
+    "start:monolith": "concurrently -n API,WORKER,SCHEDULER -c blue,green,yellow \"node apps/api/dist/index.js\" \"node apps/worker/dist/index.js\" \"node apps/scheduler/dist/index.js\"",
+    "start:api": "node apps/api/dist/index.js",
+    "start:worker": "node apps/worker/dist/index.js",
+    "start:scheduler": "node apps/scheduler/dist/index.js"
+  },
+  "dependencies": {
+    "concurrently": "^9.0.0"
   },
   "devDependencies": {
     "bcryptjs": "^3.0.3",

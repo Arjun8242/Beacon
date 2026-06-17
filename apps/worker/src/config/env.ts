@@ -5,8 +5,8 @@ config();
 
 const envSchema = z.object({
   DATABASE_URL: z.string().min(1),
-  REDIS_HOST: z.string().default('localhost'),
-  REDIS_PORT: z.coerce.number().int().positive().default(6379),
+  REDIS_HOST: z.string().default('localhost').optional(),
+  REDIS_PORT: z.coerce.number().int().positive().default(6379).optional(),
   WORKER_CONCURRENCY: z.coerce.number().int().positive().default(5),
   DEFAULT_TIMEOUT: z.coerce.number().int().positive().default(10000),
 });

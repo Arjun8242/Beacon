@@ -7,6 +7,16 @@ import dashboardRouter from './routes/dashboard';
 import statusRouter from './routes/status';
 import { errorHandler } from './errorHandler';
 
+// Global error handlers to prevent silent crashes in production
+process.on('unhandledRejection', (err) => {
+  console.error('Unhandled Rejection:', err);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err);
+  process.exit(1);
+});
+
 const app = express();
 app.use(express.json());
 
@@ -30,7 +40,7 @@ app.use('/api/v1/status', statusRouter);
 // Global error handler (must be last)
 app.use(errorHandler);
 
-const PORT = process.env.API_PORT || 3001;
+const PORT = process.env.PORT || process.env.API_PORT || 3001;
 app.listen(PORT, () => {
   console.log(`API Service listening on port ${PORT}`);
 });
