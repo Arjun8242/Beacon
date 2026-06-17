@@ -13,9 +13,7 @@
   "dependencies": {
     "bullmq": "^5.0.0",
     "ioredis": "^5.0.0",
-    "shared": "workspace:*"
-  },
-  "devDependencies": {
+    "shared": "workspace:*",
     "typescript": "^5.0.0"
   },
   "scripts": {
