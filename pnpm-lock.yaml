@@ -11,22 +11,9 @@ importers:
       concurrently:
         specifier: ^9.0.0
         version: 9.2.1
-    devDependencies:
-      bcryptjs:
-        specifier: ^3.0.3
-        version: 3.0.3
       database:
         specifier: workspace:^
         version: link:packages/database
-      express:
-        specifier: ^4.18.2
-        version: 4.22.2
-      jsonwebtoken:
-        specifier: ^9.0.3
-        version: 9.0.3
-      prettier:
-        specifier: ^3.0.0
-        version: 3.8.3
       shared:
         specifier: workspace:^
         version: link:packages/shared
@@ -36,6 +23,19 @@ importers:
       typescript:
         specifier: ^5.0.0
         version: 5.9.3
+    devDependencies:
+      bcryptjs:
+        specifier: ^3.0.3
+        version: 3.0.3
+      express:
+        specifier: ^4.18.2
+        version: 4.22.2
+      jsonwebtoken:
+        specifier: ^9.0.3
+        version: 9.0.3
+      prettier:
+        specifier: ^3.0.0
+        version: 3.8.3
       vitest:
         specifier: ^4.1.8
         version: 4.1.8(@types/node@20.19.41)(vite@8.0.16(@types/node@20.19.41))
@@ -184,6 +184,9 @@ importers:
       bcryptjs:
         specifier: ^2.4.3
         version: 2.4.3
+      prisma:
+        specifier: ^5.0.0
+        version: 5.22.0
     devDependencies:
       '@types/bcryptjs':
         specifier: ^2.4.6
@@ -191,9 +194,6 @@ importers:
       '@types/node':
         specifier: ^20.0.0
         version: 20.19.41
-      prisma:
-        specifier: ^5.0.0
-        version: 5.22.0
       ts-node:
         specifier: ^10.9.0
         version: 10.9.2(@types/node@20.19.41)(typescript@5.9.3)

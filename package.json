@@ -17,17 +17,17 @@
     "start:scheduler": "node apps/scheduler/dist/index.js"
   },
   "dependencies": {
-    "concurrently": "^9.0.0"
+    "concurrently": "^9.0.0",
+    "database": "workspace:^",
+    "shared": "workspace:^",
+    "turbo": "^2.0.0",
+    "typescript": "^5.0.0"
   },
   "devDependencies": {
     "bcryptjs": "^3.0.3",
-    "database": "workspace:^",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.3",
     "prettier": "^3.0.0",
-    "shared": "workspace:^",
-    "turbo": "^2.0.0",
-    "typescript": "^5.0.0",
     "vitest": "^4.1.8"
   },
   "packageManager": "pnpm@9.0.0"
