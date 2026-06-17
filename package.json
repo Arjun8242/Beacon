@@ -9,7 +9,8 @@
     "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
     "db:push": "pnpm --filter database db:push",
     "db:generate": "pnpm --filter database db:generate",
-    "test": "vitest run"
+    "test": "vitest run",
+    "postinstall": "pnpm run db:generate"
   },
   "devDependencies": {
     "bcryptjs": "^3.0.3",
