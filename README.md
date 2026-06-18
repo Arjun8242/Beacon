@@ -15,13 +15,13 @@ Beacon is a distributed, high-performance uptime monitoring platform designed to
 ## 📷 Screenshots
 
 ### 1. Main Dashboard Analytics
-![Main Dashboard](apps/web/public/screenshots/Screenshot%202026-06-18%20112625.png)
+![Main Dashboard](apps/web/public/screenshots/Screenshot%202026-06-18%20112525.png)
 
 ### 2. User Authentication
-![Authentication Screen](apps/web/public/screenshots/Screenshot%202026-06-18%20112525.png)
+![Authentication Screen](apps/web/public/screenshots/Screenshot%202026-06-18%20113626.png)
 
 ### 3. Monitor Management & Configuration
-![Monitor Management](apps/web/public/screenshots/Screenshot%202026-06-18%20112547.png)
+![Monitor Management](apps/web/public/screenshots/Screenshot%202026-06-18%20112625.png)
 
 ---
 
