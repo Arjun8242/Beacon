@@ -5,3 +5,11 @@ dist/
 .next/
 coverage/
 .env.example
+
+# Project tracking and designs
+PROJECT_STATUS.md
+TASKS.md
+docs/PROJECT_STATUS.md
+docs/TASKS.md
+reference-design/
+docs/reference-design/
