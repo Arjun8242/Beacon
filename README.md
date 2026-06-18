@@ -1,48 +1,110 @@
 # 📡 Beacon
-> A Production-Ready, Distributed Uptime Monitoring & Status Analytics Platform.
+> A Queue-Driven, Distributed Uptime Monitoring & Status Analytics Platform.
 
-[![License](https://img.shields.io/github/license/Arjun8242/uptime-monitoring?color=blue&style=flat-square)](LICENSE)
+[![License](https://img.shields.io/github/license/Arjun8242/Beacon?color=blue&style=flat-square)](LICENSE)
 [![Next.js](https://img.shields.io/badge/Frontend-Next.js%2014-black?logo=next.js&style=flat-square)](https://nextjs.org)
 [![Express](https://img.shields.io/badge/Backend-Express.js-lightgrey?logo=express&style=flat-square)](https://expressjs.com)
 [![Prisma ORM](https://img.shields.io/badge/ORM-Prisma-2D3748?logo=prisma&style=flat-square)](https://prisma.io)
 [![BullMQ](https://img.shields.io/badge/Queue-BullMQ%20%2B%20Redis-red?logo=redis&style=flat-square)](https://bullmq.io)
 [![PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL-336791?logo=postgresql&style=flat-square)](https://postgresql.org)
 
-Beacon is a distributed, high-performance uptime monitoring platform designed to track service availability, record granular response-time metrics, calculate real-time uptime percentages, and automatically detect service outages. Engineered with a decouple-first architecture, Beacon leverages a decoupled scheduler-worker design to achieve reliable cron-based task scheduling and concurrent task execution at scale.
+Beacon is a distributed uptime monitoring platform designed to track service availability, record granular response-time metrics, calculate real-time uptime percentages, and automatically detect service outages. Engineered with a decouple-first architecture, Beacon leverages a decoupled scheduler-worker design to achieve reliable cron-based task scheduling and concurrent task execution.
 
 ---
 
+## 💡 Why Beacon?
+
+Beacon was built to explore the design, implementation, and trade-offs of distributed systems, queue-based architectures, incident tracking lifecycles, and time-series analytics. 
+
+### The Problem
+Traditional monolithic health-checking applications couple the request/response cycle of HTTP monitoring with the main application thread. This model introduces latency bottlenecks, limits concurrency, and risks system-wide failure if target websites respond slowly or time out. 
+
+### How Modern Uptime Monitors Work
+Modern uptime monitoring platforms decouple the cron scheduling layer from the network execution layer:
+1. **The Scheduler** periodically polls a registry of active monitors to discover which targets are due for verification.
+2. Rather than performing the network handshake itself, it publishes task payloads to a message broker.
+3. **Stateless Worker Nodes** consume these jobs asynchronously, execute target HTTP checks concurrently, log response times, and update the global state.
+
+Beacon implements this design to ensure isolation, concurrency, and reliable job execution.
+
+
 ## 📷 Screenshots
 
+Below are the key interfaces of the platform. For local development or deployment checks, ensure your screens cover:
+
 ### 1. Main Dashboard Analytics
+* **Recommended Focus:** Metric summary panels, active incident banners, latency over time graph, and the list of active/paused monitors.
 ![Main Dashboard](apps/web/public/screenshots/Screenshot%202026-06-18%20112525.png)
 
 ### 2. User Authentication
+* **Recommended Focus:** Clean, secure login and registration forms featuring responsive states and client-side credential validation.
 ![Authentication Screen](apps/web/public/screenshots/Screenshot%202026-06-18%20113626.png)
 
 ### 3. Monitor Management & Configuration
+* **Recommended Focus:** Form parameters including URL targets, polling intervals, HTTP methods, and status update confirmation indicators.
 ![Monitor Management](apps/web/public/screenshots/Screenshot%202026-06-18%20112625.png)
+
+### 4. Incident History (Coming Soon / Mockup)
+* **Recommended Focus:** Tabular logs showcasing historical incident durations, trigger timestamps, resolved timestamps, and response status codes.
+* **Placeholder:** ![Incident History](apps/web/public/screenshots/Screenshot%202026-06-18%20112547.png)
 
 ---
 
 ## 📖 Project Overview
 
 Beacon addresses the challenges of reliable, low-overhead website and API health monitoring. Built inside a Turborepo monorepo with PNPM Workspaces, it features:
-* **True Cron-Based Decoupling:** Monitoring jobs are scheduled at custom intervals by an isolated scheduler service and dispatched via a Redis-backed message broker (BullMQ).
-* **Fault-Tolerant Workers:** Independent worker nodes consume jobs concurrently, perform non-blocking HTTP status probes, record performance timings, and detect failure patterns.
+* **True Cron-Based Decoupling:** Monitoring jobs are scheduled at custom intervals by a scheduler service and dispatched via a Redis-backed message broker (BullMQ).
+* **Worker Execution Pool:** Worker nodes consume jobs concurrently, perform non-blocking HTTP status probes, record performance timings, and detect failure patterns.
 * **Granular Time-Series Data:** Captures millisecond-level response times and logs HTTP error details to compute historical uptime averages and surface incidents.
 
 ---
 
-## ✨ Key Features
+## 🚀 Project Highlights
 
-* **JWT-Based Authentication:** Secure endpoints using bcrypt for password hashing and stateless JSON Web Tokens for API authorization.
-* **Configurable Website Monitoring:** Support for custom HTTP methods (GET, POST, etc.) and variable monitoring intervals (e.g., every 60s).
-* **High-Precision Timing:** Records request response time in milliseconds to establish performance baselines.
-* **Automated Incident Detection:** Detects failed HTTP checks, registers incidents, calculates downtime duration, and transitions monitors to a `DOWN` or `DEGRADED` state.
-* **Real-Time Analytics & Statistics:** Aggregates average response times and computes uptime percentages across user-defined periods.
-* **Background Queue Processing:** Utilizes BullMQ's queueing engine to guarantee job delivery and retry logic in case of network fluctuations.
-* **Cloud Deployment:** Seamless architecture designed to deploy natively on Neon (PostgreSQL), Upstash (Redis), Render (Backend services), and Vercel (Frontend Next.js app).
+* **Distributed Architecture:** Clean separation of concerns with a Scheduler → Redis Queue → Worker pipeline.
+* **Asynchronous Processing:** Redis & BullMQ handle task queueing, concurrency, and job retries asynchronously.
+* **Prisma & Postgres Storage:** Strong consistency and relational modeling for users, monitors, checks, and incidents.
+* **Incident Lifecycle Management:** Automatically tracks outage transitions from trigger state to resolution.
+* **Stateless REST API:** JWT-based authentication for isolated, stateless user sessions.
+* **Production-Grade Tooling:** Turborepo monorepo configuration with strict TypeScript enforcement.
+
+---
+
+## ⚡ Current Capabilities
+
+| Feature | Capability | Implementation / Tech |
+|---|---|---|
+| **Concurrent Worker Jobs** | Configurable job concurrency limits per worker thread | BullMQ `concurrency` (Default: `10`) |
+| **Custom Monitoring Intervals** | Granular check intervals defined per monitor target | Database-driven interval scheduling (`30s` to `600s`) |
+| **Historical Check Storage** | Persistent append-only response metrics logs | PostgreSQL transaction tables with composite indexes |
+| **Incident Tracking** | State-driven incident creation and resolution | Relational database mapping with active incident tracking |
+| **JWT Authentication** | Secure, stateless API user authentication | `jsonwebtoken` + `bcrypt` password hashing |
+| **Redis Queue Processing** | Durable message execution and job retry guarantees | BullMQ job status engine backed by Redis structures |
+| **Cloud Deployment** | Unified resource deployment and cost-optimized orchestration | Render Web Service using `concurrently` |
+
+---
+
+## ⚙️ System Design Decisions
+
+### Why Redis + BullMQ?
+* **Decoupling Net IO:** Running network requests inside API request-response loops leads to poor API responsiveness. Offloading health checks to an asynchronous queue ensures the API remains fast.
+* **Reliable Job Delivery:** Redis provides persistent memory structures, ensuring jobs are not lost if a worker process crashes mid-execution.
+* **Built-in Retries:** BullMQ handles backoff strategies and automated retries, avoiding false-positives caused by transient network blips.
+* **Concurrency Control:** BullMQ lets us configure exact concurrency rates per worker node, protecting target servers and worker memory limits from spike loads.
+
+### Why PostgreSQL?
+* **Relational Consistency:** Monitors belong to Users, Checks belong to Monitors, and Incidents are linked directly to Monitors. A relational database enforces schema constraints and foreign key cascading.
+* **Transactional Reliability:** Updating monitor status and creating an incident must happen atomically. PostgreSQL's ACID compliance prevents disjointed, orphan state issues.
+* **Optimized Indexing:** Indexes on compound columns like `(active, nextCheckAt)` ensure that scheduler polling queries scale cleanly as the number of monitors grows.
+
+### Why Scheduler + Worker Separation?
+* **Resource Isolation:** The scheduler is lightweight and database-bound, whereas workers are CPU and network IO-bound. Separating them prevents network congestion on worker machines from delaying scheduling cycles.
+* **Independent Scalability:** If the number of targets increases, we can scale out the worker service horizontally without multiplying scheduler processes, preventing duplicate database ticks.
+
+### Why Turborepo?
+* **Unified Workspace:** Speeds up monorepo dependency resolution using PNPM workspaces.
+* **Code Sharing:** Shared TS types and database connections reside in a single `packages/` directory, avoiding package version mismatches and boilerplate duplicates.
+* **Dependency Caching:** Turborepo caches tasks like builds, tests, and lints, optimizing local compilation times.
 
 ---
 
@@ -205,7 +267,7 @@ To support high-frequency querying and polling, the following indices are mainta
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/Arjun8242/uptime-monitoring.git
+   git clone https://github.com/Arjun8242/Beacon.git
    cd uptime-monitor
    ```
 
@@ -277,8 +339,16 @@ All routes are versioned and located under `/api/v1`.
 
 ## 🚢 Deployment Architecture
 
+### Current Deployment (Render Free-Tier Optimized)
+To optimize costs while preserving logical code separation, the three backend processes run inside a **single Render Web Service** container:
+* **Express API**
+* **Scheduler Service**
+* **Worker Service**
+
+These services are orchestrated concurrently inside the container environment using the `concurrently` package. This allows us to run multiple decoupled backend layers under a single Render free-tier compute instance while maintaining strict logical boundaries in our monorepo codebase.
+
+### Global Architecture
 * **Frontend:** Hosted on **Vercel** with Next.js edge runtime optimizations for static assets and API requests proxying.
-* **Express API, Scheduler, and Worker:** Deployed on **Render** as Web Service (API) and Background Workers (Scheduler & Worker).
 * **Database Layer:** Serverless **Neon PostgreSQL** database with autoscaling connections and automated point-in-time recovery.
 * **Queue Broker:** **Upstash serverless Redis** enabling pay-as-you-go latency-sensitive data structures.
 
