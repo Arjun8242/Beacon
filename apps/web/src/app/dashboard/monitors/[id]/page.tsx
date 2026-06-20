@@ -111,24 +111,24 @@ export default function MonitorDetailPage() {
 
   if (loading && !monitor) {
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginTop: '1rem' }}>
-        <div className="skeleton" style={{ height: '40px', width: '200px', borderRadius: '4px' }}></div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
+      <div className="detail-skeleton-wrap">
+        <div className="skeleton skeleton--heading"></div>
+        <div className="skeleton--3col">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="skeleton" style={{ height: '110px', borderRadius: '10px' }}></div>
+            <div key={i} className="skeleton skeleton--stat"></div>
           ))}
         </div>
-        <div className="skeleton" style={{ height: '300px', borderRadius: '10px' }}></div>
+        <div className="skeleton skeleton--chart"></div>
       </div>
     );
   }
 
   if (error && !monitor) {
     return (
-      <div className="panel-dark" style={{ textAlign: 'center', padding: '3rem', margin: '2rem 0' }}>
-        <svg style={{ margin: '0 auto 1.5rem', color: 'var(--storm)' }} width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+      <div className="panel-dark dash-error-panel">
+        <svg className="error-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
         <h3>Monitor Disconnected</h3>
-        <p style={{ color: 'var(--text-secondary)', maxWidth: '28rem', margin: '0.5rem auto 1.5rem' }}>{error}</p>
+        <p className="error-desc">{error}</p>
         <Link href="/dashboard" className="btn-primary">Back to Dashboard</Link>
       </div>
     );
@@ -147,25 +147,23 @@ export default function MonitorDetailPage() {
   return (
     <div>
       {/* ===== Monitor Header Area ===== */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+      <div className="monitor-header">
         <div>
-          <span style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--gold)', fontWeight: 600 }}>Monitor Detail</span>
-          <h2 style={{ fontFamily: 'var(--ff-display, Fraunces, Georgia, serif)', fontSize: '1.6rem', margin: '0.2rem 0 0.15rem', color: 'var(--parchment)', letterSpacing: '-.01em', fontWeight: 700 }}>
-            {monitor.name}
-          </h2>
-          <a href={monitor.url} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', opacity: 0.8, textDecoration: 'underline' }}>
+          <span className="monitor-eyebrow">Monitor Detail</span>
+          <h2 className="monitor-title">{monitor.name}</h2>
+          <a href={monitor.url} target="_blank" rel="noopener noreferrer" className="monitor-url">
             {monitor.url}
           </a>
         </div>
         
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-          <Link href={`/status/${monitor.slug}`} target="_blank" className="btn-primary" style={{ fontSize: '0.8rem', padding: '0.5rem 1rem', background: 'none', border: '1px solid var(--gold)', color: 'var(--gold)', boxShadow: 'none' }}>
+        <div className="monitor-actions">
+          <Link href={`/status/${monitor.slug}`} target="_blank" className="btn-primary btn-outline-gold">
             Public Status Page
           </Link>
-          <button onClick={handlePauseResume} className="btn-primary" style={{ fontSize: '0.8rem', padding: '0.5rem 1rem', background: 'none', border: '1px solid rgba(255, 255, 255, 0.2)', color: 'var(--parchment)', boxShadow: 'none' }}>
+          <button onClick={handlePauseResume} className="btn-primary btn-outline-ghost">
             {monitor.active ? 'Pause Watch' : 'Resume Watch'}
           </button>
-          <button onClick={handleDelete} className="btn-primary" style={{ fontSize: '0.8rem', padding: '0.5rem 1rem', background: 'linear-gradient(180deg, #bf3b2c, #8a2a1f)', color: 'var(--lh-white)', border: '1px solid #8a2a1f', boxShadow: 'none' }}>
+          <button onClick={handleDelete} className="btn-primary btn-danger">
             Delete
           </button>
         </div>
@@ -176,15 +174,15 @@ export default function MonitorDetailPage() {
         <div className="stat-card">
           <svg className="bg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
           <div className="stat-top">Signal Status</div>
-          <p className="stat-value" style={{ 
-            color: !monitor.active 
-              ? 'var(--ink)' 
+          <p className={`stat-value ${
+            !monitor.active 
+              ? 'text-status-paused' 
               : monitor.status === 'UP' 
-                ? '#27522f' 
+                ? 'text-status-up' 
                 : monitor.status === 'DEGRADED' 
-                  ? '#5e3f0a' 
-                  : '#6b1e1c' 
-          }}>
+                  ? 'text-status-degraded' 
+                  : 'text-status-down'
+          }`}>
             {monitor.active ? (monitor.status === 'UP' ? 'Calm' : monitor.status === 'DEGRADED' ? 'Rough' : 'Storm') : 'Paused'}
           </p>
           <p className="stat-sub">
@@ -209,15 +207,15 @@ export default function MonitorDetailPage() {
         <div className="stat-card">
           <svg className="bg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 3v10M9 6l3-3 3 3"/></svg>
           <div className="stat-top">Storm Outages</div>
-          <p className="stat-value" style={{ color: activeIncidents > 0 ? '#6b1e1c' : 'inherit' }}>{activeIncidents}</p>
+          <p className={`stat-value ${activeIncidents > 0 ? 'text-status-down' : ''}`}>{activeIncidents}</p>
           <p className="stat-sub">Ongoing incident warnings</p>
         </div>
       </section>
 
       {/* ===== Latency Chart Panel ===== */}
-      <section className="panel-dark" style={{ marginBottom: '1.5rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-          <h2 style={{ margin: 0 }}>Monitor Latency Profile</h2>
+      <section className="panel-dark panel-dark--mb">
+        <div className="chart-header">
+          <h2>Monitor Latency Profile</h2>
           <div className="time-filter">
             <button className={`time-filter-btn ${windowType === '24h' ? 'active' : ''}`} onClick={() => setWindowType('24h')}>24h</button>
             <button className={`time-filter-btn ${windowType === '7d' ? 'active' : ''}`} onClick={() => setWindowType('7d')}>7 Days</button>
@@ -225,7 +223,7 @@ export default function MonitorDetailPage() {
           </div>
         </div>
 
-        <div style={{ width: '100%', height: 260, position: 'relative' }}>
+        <div className="chart-container">
           {isMounted && chartData.length > 0 ? (
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
@@ -255,8 +253,8 @@ export default function MonitorDetailPage() {
                       return (
                         <div className="custom-tooltip">
                           <p className="label">{new Date(data.bucket).toLocaleString()}</p>
-                          <p style={{ color: 'var(--gold)' }}>Average: <b>{data.avg}ms</b></p>
-                          <p style={{ color: 'var(--text-secondary)' }}>Range: {data.min}ms - {data.max}ms</p>
+                          <p className="tooltip-avg">Average: <b>{data.avg}ms</b></p>
+                          <p className="tooltip-range">Range: {data.min}ms - {data.max}ms</p>
                         </div>
                       );
                     }
@@ -274,11 +272,11 @@ export default function MonitorDetailPage() {
               </AreaChart>
             </ResponsiveContainer>
           ) : isMounted ? (
-            <div style={{ display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', opacity: 0.6, fontSize: '0.85rem' }}>
+            <div className="chart-empty">
               No latency metrics logged in this window.
             </div>
           ) : (
-            <div className="skeleton" style={{ width: '100%', height: '100%', borderRadius: '6px' }}></div>
+            <div className="skeleton w-full h-full rounded-md"></div>
           )}
         </div>
       </section>
@@ -290,7 +288,7 @@ export default function MonitorDetailPage() {
           <h2>Signal Log History</h2>
           
           {checks.length === 0 ? (
-            <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)', opacity: 0.6 }}>
+            <div className="table-empty">
               No logs charted.
             </div>
           ) : (
@@ -320,7 +318,7 @@ export default function MonitorDetailPage() {
                         <td>
                           {check.statusCode 
                             ? check.statusCode 
-                            : <span style={{ color: 'var(--storm)', fontSize: '0.8rem' }}>{check.error || 'Connection Failed'}</span>
+                            : <span className="text-storm text-[0.8rem]">{check.error || 'Connection Failed'}</span>
                           }
                         </td>
                       </tr>
@@ -330,7 +328,7 @@ export default function MonitorDetailPage() {
               </div>
 
               {(checksPagination?.pages || 1) > 1 && (
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '1rem' }}>
+                <div className="pagination-row">
                   <button 
                     className="time-filter-btn" 
                     disabled={checksPage === 1}
@@ -338,7 +336,7 @@ export default function MonitorDetailPage() {
                   >
                     Prev
                   </button>
-                  <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Page {checksPage} of {checksPagination?.pages || 1}</span>
+                  <span className="pagination-label">Page {checksPage} of {checksPagination?.pages || 1}</span>
                   <button 
                     className="time-filter-btn" 
                     disabled={checksPage === (checksPagination?.pages || 1)}
@@ -357,25 +355,25 @@ export default function MonitorDetailPage() {
           <h2>Storm & Outage Log</h2>
 
           {incidents.length === 0 ? (
-            <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)', opacity: 0.6, fontSize: '0.85rem' }}>
+            <div className="table-empty">
               No incidents recorded. All systems operational.
             </div>
           ) : (
             <>
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <div className="incident-list">
                 {incidents.map((incident) => (
                   <div key={incident.id} className="incident-item">
                     <div className="incident-item-header">
-                      <span style={{ fontWeight: 600 }}>Storm Outage</span>
+                      <span className="incident-title">Storm Outage</span>
                       <span className={`incident-badge ${incident.resolvedAt ? 'resolved' : 'open'}`}>
                         {incident.resolvedAt ? 'Resolved' : 'Active'}
                       </span>
                     </div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                    <div className="incident-meta">
                       Triggered: {new Date(incident.startedAt).toLocaleString()}
                     </div>
                     {incident.resolvedAt && (
-                      <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                      <div className="incident-meta">
                         Resolved: {new Date(incident.resolvedAt).toLocaleString()}
                       </div>
                     )}
@@ -390,7 +388,7 @@ export default function MonitorDetailPage() {
               </div>
 
               {(incidentsPagination?.pages || 1) > 1 && (
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '1rem' }}>
+                <div className="pagination-row">
                   <button 
                     className="time-filter-btn" 
                     disabled={incidentsPage === 1}
@@ -398,7 +396,7 @@ export default function MonitorDetailPage() {
                   >
                     Prev
                   </button>
-                  <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Page {incidentsPage} of {incidentsPagination?.pages || 1}</span>
+                  <span className="pagination-label">Page {incidentsPage} of {incidentsPagination?.pages || 1}</span>
                   <button 
                     className="time-filter-btn" 
                     disabled={incidentsPage === (incidentsPagination?.pages || 1)}

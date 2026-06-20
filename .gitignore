@@ -13,3 +13,6 @@ docs/PROJECT_STATUS.md
 docs/TASKS.md
 reference-design/
 docs/reference-design/
+
+# TypeScript build cache
+*.tsbuildinfo

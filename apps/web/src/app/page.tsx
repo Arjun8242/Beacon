@@ -57,10 +57,10 @@ export default function Home() {
 
 
   <div className="stars" aria-hidden="true"></div>
-  <div className="star" style={{top: '5%', left: '34%', animationDelay: '0s'}} aria-hidden="true"></div>
-  <div className="star" style={{top: '11%', left: '62%', animationDelay: '.9s'}} aria-hidden="true"></div>
-  <div className="star" style={{top: '3%', left: '50%', animationDelay: '1.8s'}} aria-hidden="true"></div>
-  <div className="star" style={{top: '18%', left: '8%', animationDelay: '2.5s'}} aria-hidden="true"></div>
+  <div className="star star-home-1" aria-hidden="true"></div>
+  <div className="star star-home-2" aria-hidden="true"></div>
+  <div className="star star-home-3" aria-hidden="true"></div>
+  <div className="star star-home-4" aria-hidden="true"></div>
 
   <div className="wrap">
     <header className="nav">
@@ -82,20 +82,11 @@ export default function Home() {
             <a href="#intel">Pricing</a>
             {isAuth ? (
               <>
-                <span style={{ color: 'var(--gold)', fontSize: '0.88rem' }}>Welcome, {userEmail || 'Captain'}</span>
-                <Link href="/dashboard" style={{ color: 'var(--beacon-green-bright)', fontWeight: 600 }}>Harbor Dashboard</Link>
+                <span className="text-gold text-[0.88rem]">Welcome, {userEmail || 'Captain'}</span>
+                <Link href="/dashboard" className="text-beacon-green-bright font-semibold">Harbor Dashboard</Link>
                 <button
                   onClick={handleSignOut}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    color: 'inherit',
-                    fontFamily: 'inherit',
-                    fontSize: 'inherit',
-                    cursor: 'pointer',
-                    opacity: 0.82,
-                    padding: 0,
-                  }}
+                  className="btn-signout"
                 >
                   Sign out
                 </button>
@@ -156,10 +147,10 @@ export default function Home() {
 
         <div className="radar-circle" aria-hidden="true">
           <div className="radar-sweep"></div>
-          <div className="radar-blip" style={{top: '30%', left: '40%', animationDelay: '0s'}}></div>
-          <div className="radar-blip" style={{top: '55%', left: '65%', animationDelay: '.6s'}}></div>
-          <div className="radar-blip" style={{top: '68%', left: '35%', animationDelay: '1.2s'}}></div>
-          <div className="radar-blip" style={{top: '42%', left: '55%', animationDelay: '1.8s'}}></div>
+          <div className="radar-blip radar-blip-1"></div>
+          <div className="radar-blip radar-blip-2"></div>
+          <div className="radar-blip radar-blip-3"></div>
+          <div className="radar-blip radar-blip-4"></div>
         </div>
 
         <div className="watchtower-card">
@@ -216,7 +207,7 @@ export default function Home() {
 
         <article className="story-panel">
           <div className="story-visual">
-            <svg className="ship-bob" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" style={{color: 'var(--harbor)'}} role="img" aria-label="Ship returning to harbor after a storm">
+            <svg className="ship-bob text-harbor" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ship returning to harbor after a storm">
               <path d="M50 20v34" stroke="currentColor" strokeWidth="3"/>
               <path d="M50 20 L62 30 L50 30 Z" fill="var(--lh-red)"/>
               <rect x="46" y="30" width="8" height="8" fill="#0d2236" stroke="currentColor"/>
@@ -296,41 +287,41 @@ export default function Home() {
 
           {/*  connecting lines  */}
           <g stroke="rgba(201,163,92,.45)" strokeWidth="2">
-            <line x1="300" y1="54" x2="300" y2="84" marker-end="url(#arch-arrow)"/>
-            <line x1="300" y1="134" x2="300" y2="164" marker-end="url(#arch-arrow)"/>
+            <line x1="300" y1="54" x2="300" y2="84" markerEnd="url(#arch-arrow)"/>
+            <line x1="300" y1="134" x2="300" y2="164" markerEnd="url(#arch-arrow)"/>
             <line x1="300" y1="214" x2="300" y2="240"/>
             <line x1="100" y1="240" x2="500" y2="240"/>
-            <line x1="100" y1="240" x2="100" y2="264" marker-end="url(#arch-arrow)"/>
-            <line x1="300" y1="240" x2="300" y2="264" marker-end="url(#arch-arrow)"/>
-            <line x1="500" y1="240" x2="500" y2="264" marker-end="url(#arch-arrow)"/>
+            <line x1="100" y1="240" x2="100" y2="264" markerEnd="url(#arch-arrow)"/>
+            <line x1="300" y1="240" x2="300" y2="264" markerEnd="url(#arch-arrow)"/>
+            <line x1="500" y1="240" x2="500" y2="264" markerEnd="url(#arch-arrow)"/>
             <line x1="100" y1="314" x2="100" y2="340"/>
             <line x1="300" y1="314" x2="300" y2="340"/>
             <line x1="500" y1="314" x2="500" y2="340"/>
             <line x1="100" y1="340" x2="500" y2="340"/>
-            <line x1="300" y1="340" x2="300" y2="364" marker-end="url(#arch-arrow)"/>
-            <line x1="300" y1="414" x2="300" y2="444" marker-end="url(#arch-arrow)"/>
-            <line x1="300" y1="494" x2="300" y2="524" marker-end="url(#arch-arrow)"/>
+            <line x1="300" y1="340" x2="300" y2="364" markerEnd="url(#arch-arrow)"/>
+            <line x1="300" y1="414" x2="300" y2="444" markerEnd="url(#arch-arrow)"/>
+            <line x1="300" y1="494" x2="300" y2="524" markerEnd="url(#arch-arrow)"/>
           </g>
 
           {/*  Monitor  */}
           <rect x="220" y="10" width="160" height="44" rx="8" fill="#10243a" stroke="var(--gold)" strokeWidth="1.5"/>
-          <text x="300" y="37" text-anchor="middle" className="arch-box-label">Monitor</text>
+          <text x="300" y="37" textAnchor="middle" className="arch-box-label">Monitor</text>
 
           {/*  Scheduler Service  */}
           <rect x="190" y="84" width="220" height="44" rx="8" fill="#10243a" stroke="rgba(201,163,92,.3)" strokeWidth="1.5"/>
-          <text x="300" y="111" text-anchor="middle" className="arch-box-label">Scheduler Service</text>
+          <text x="300" y="111" textAnchor="middle" className="arch-box-label">Scheduler Service</text>
 
           {/*  BullMQ Queue  */}
           <rect x="200" y="164" width="200" height="44" rx="8" fill="#10243a" stroke="rgba(201,163,92,.3)" strokeWidth="1.5"/>
-          <text x="300" y="191" text-anchor="middle" className="arch-box-label">BullMQ Queue</text>
+          <text x="300" y="191" textAnchor="middle" className="arch-box-label">BullMQ Queue</text>
 
           {/*  Workers  */}
           <rect x="30" y="264" width="140" height="44" rx="8" fill="#10243a" stroke="rgba(95,174,110,.4)" strokeWidth="1.5"/>
-          <text x="100" y="291" text-anchor="middle" className="arch-box-label">Worker 1</text>
-          <rect x="230" y="264" width="140" height="44" rx="8" fill="#10243a" stroke="rgba(95,174,110,.4)" strokeWidth="1.5"/>
-          <text x="300" y="291" text-anchor="middle" className="arch-box-label">Worker 2</text>
+          <text x="100" y="291" textAnchor="middle" className="arch-box-label">Worker 1</text>
+          <rect x="30" y="264" width="140" height="44" rx="8" fill="#10243a" stroke="rgba(95,174,110,.4)" strokeWidth="1.5"/>
+          <text x="300" y="291" textAnchor="middle" className="arch-box-label">Worker 2</text>
           <rect x="430" y="264" width="140" height="44" rx="8" fill="#10243a" stroke="rgba(95,174,110,.4)" strokeWidth="1.5"/>
-          <text x="500" y="291" text-anchor="middle" className="arch-box-label">Worker 3</text>
+          <text x="500" y="291" textAnchor="middle" className="arch-box-label">Worker 3</text>
 
           {/*  worker live indicators  */}
           <circle className="worker-ring" cx="158" cy="276" r="3" fill="none" stroke="var(--beacon-green-bright)" strokeWidth="1.5"/>
@@ -342,15 +333,15 @@ export default function Home() {
 
           {/*  Incident Detection  */}
           <rect x="190" y="364" width="220" height="44" rx="8" fill="#10243a" stroke="rgba(224,162,60,.45)" strokeWidth="1.5"/>
-          <text x="300" y="391" text-anchor="middle" className="arch-box-label">Incident Detection</text>
+          <text x="300" y="391" textAnchor="middle" className="arch-box-label">Incident Detection</text>
 
           {/*  PostgreSQL + Redis  */}
           <rect x="190" y="444" width="220" height="44" rx="8" fill="#10243a" stroke="rgba(70,179,168,.45)" strokeWidth="1.5"/>
-          <text x="300" y="471" text-anchor="middle" className="arch-box-label">PostgreSQL + Redis</text>
+          <text x="300" y="471" textAnchor="middle" className="arch-box-label">PostgreSQL + Redis</text>
 
           {/*  Realtime UI  */}
           <rect x="210" y="524" width="180" height="44" rx="8" fill="#10243a" stroke="var(--beacon-green)" strokeWidth="1.5"/>
-          <text x="300" y="551" text-anchor="middle" className="arch-box-label" style={{fill: 'var(--beacon-green-bright)'}}>Realtime UI</text>
+          <text x="300" y="551" textAnchor="middle" className="arch-box-label fill-beacon-green-bright">Realtime UI</text>
 
           {/*  live data flow  */}
           <circle className="flow-packet" r="4" fill="var(--beam)"/>
@@ -442,7 +433,7 @@ export default function Home() {
               <line x1="32" y1="8" x2="32" y2="44" stroke="currentColor" strokeWidth="2" className="ship-hull"/>
               <path d="M32 44h-12l4-9h8z" fill="currentColor" className="ship-hull" opacity=".7"/>
               <path d="M32 44h12l-4-9h-8z" fill="currentColor" className="ship-hull" opacity=".4"/>
-              <text x="32" y="22" text-anchor="middle" fontFamily="Inter, sans-serif" fontWeight="700" fontSize="9" fill="var(--storm)" className="sos-flash">SOS</text>
+              <text x="32" y="22" textAnchor="middle" fontFamily="Inter, sans-serif" fontWeight="700" fontSize="9" fill="var(--storm)" className="sos-flash">SOS</text>
               <path d="M14 6l3 5-4 1 4 5" stroke="var(--rough)" strokeWidth="2" fill="none" strokeLinecap="round" className="sos-flash"/>
               <path d="M50 6l3 5-4 1 4 5" stroke="var(--rough)" strokeWidth="2" fill="none" strokeLinecap="round" className="sos-flash"/>
               <path d="M4 50c4-3 8-3 12 0s8 3 12 0 8-3 12 0 8 3 12 0" stroke="rgba(217,83,79,.55)" strokeWidth="2.5" fill="none"/>
@@ -486,10 +477,10 @@ export default function Home() {
           <h3>Outage tracking</h3>
           <div className="panel-visual">
             <div className="storm-dot-grid" aria-hidden="true"></div>
-            <div className="storm-cell" style={{top: '18px', left: '60px'}}></div>
-            <div className="storm-cell delay" style={{top: '60px', left: '190px'}}></div>
-            <div className="storm-label" style={{top: '8px', left: '64px'}}>P1</div>
-            <div className="storm-label" style={{top: '50px', left: '194px'}}>P2</div>
+            <div className="storm-cell storm-cell-1"></div>
+            <div className="storm-cell delay storm-cell-2"></div>
+            <div className="storm-label storm-label-1">P1</div>
+            <div className="storm-label storm-label-2">P2</div>
           </div>
           <p className="panel-caption">Incident timeline · major outage (P1) · 12:35–13:05 GMT</p>
         </article>

@@ -59,12 +59,12 @@ export default function RegisterPage() {
   return (
     <div>
       <div className="stars-auth" aria-hidden="true"></div>
-      <div className="star" style={{ top: '9%', left: '30%', animationDelay: '0s' }} aria-hidden="true"></div>
-      <div className="star" style={{ top: '16%', left: '70%', animationDelay: '.8s' }} aria-hidden="true"></div>
-      <div className="star" style={{ top: '6%', left: '55%', animationDelay: '1.6s' }} aria-hidden="true"></div>
-      <div className="star" style={{ top: '24%', left: '12%', animationDelay: '2.4s' }} aria-hidden="true"></div>
-      <div className="star" style={{ top: '20%', left: '88%', animationDelay: '1.1s' }} aria-hidden="true"></div>
-      <div className="star" style={{ top: '30%', left: '46%', animationDelay: '.4s' }} aria-hidden="true"></div>
+      <div className="star star-1" aria-hidden="true"></div>
+      <div className="star star-2" aria-hidden="true"></div>
+      <div className="star star-3" aria-hidden="true"></div>
+      <div className="star star-4" aria-hidden="true"></div>
+      <div className="star star-5" aria-hidden="true"></div>
+      <div className="star star-6" aria-hidden="true"></div>
 
       <div className="rope left" aria-hidden="true"></div>
       <div className="rope right" aria-hidden="true"></div>
@@ -72,7 +72,7 @@ export default function RegisterPage() {
       <header className="topnav">
         <div className="brand">
           <Link href="/">
-            <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style={{ display: 'inline-block', marginRight: '8px', verticalAlign: 'middle' }}>
+            <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" className="brand-svg">
               <path d="M16 36h8l-1-6h-6z" fill="currentColor" opacity=".5"/>
               <path d="M14 30h12l-2-18h-8z" fill="currentColor"/>
               <rect x="15" y="18" width="10" height="3" fill="var(--lh-red)"/>
@@ -113,17 +113,7 @@ export default function RegisterPage() {
           <p className="subtitle">Establish Harbor Credentials</p>
 
           {error && (
-            <div style={{
-              background: 'rgba(217, 83, 79, 0.15)',
-              border: '1px solid var(--storm)',
-              color: 'var(--storm)',
-              borderRadius: '6px',
-              padding: '0.75rem',
-              fontSize: '0.85rem',
-              marginBottom: '1rem',
-              textAlign: 'center',
-              fontWeight: 500
-            }}>
+            <div className="auth-error-banner">
               {error}
             </div>
           )}
@@ -198,9 +188,9 @@ export default function RegisterPage() {
             <button className="enter-btn" type="submit" disabled={isLoading}>
               <span className="wheel-svg" aria-hidden="true">
                 <svg width="26" height="26" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="30" cy="30" r="21" stroke="currentColor" stroke-width="3"/>
+                  <circle cx="30" cy="30" r="21" stroke="currentColor" strokeWidth="3"/>
                   <circle cx="30" cy="30" r="5" fill="currentColor"/>
-                  <g stroke="currentColor" stroke-width="3" strokeLinecap="round">
+                  <g stroke="currentColor" strokeWidth="3" strokeLinecap="round">
                     <line x1="30" y1="9" x2="30" y2="51"/>
                     <line x1="9" y1="30" x2="51" y2="30"/>
                     <line x1="15" y1="15" x2="45" y2="45"/>
@@ -253,14 +243,14 @@ export default function RegisterPage() {
               <path d="M60 24 L68 60 L60 96 L52 60 Z" fill="var(--gold)" opacity=".8"/>
               <path d="M60 24 L68 60 L60 60 Z" fill="var(--lh-red)"/>
             </g>
-            <text x="60" y="14" text-anchor="middle" fontFamily="Fraunces, Georgia, serif" fontSize="11" fill="var(--parchment)">N</text>
-            <text x="60" y="112" text-anchor="middle" fontFamily="Fraunces, Georgia, serif" fontSize="11" fill="var(--parchment)">S</text>
-            <text x="8" y="64" text-anchor="middle" fontFamily="Fraunces, Georgia, serif" fontSize="11" fill="var(--parchment)">W</text>
-            <text x="112" y="64" text-anchor="middle" fontFamily="Fraunces, Georgia, serif" fontSize="11" fill="var(--parchment)">E</text>
+            <text x="60" y="14" textAnchor="middle" fontFamily="Fraunces, Georgia, serif" fontSize="11" fill="var(--parchment)">N</text>
+            <text x="60" y="112" textAnchor="middle" fontFamily="Fraunces, Georgia, serif" fontSize="11" fill="var(--parchment)">S</text>
+            <text x="8" y="64" textAnchor="middle" fontFamily="Fraunces, Georgia, serif" fontSize="11" fill="var(--parchment)">W</text>
+            <text x="112" y="64" textAnchor="middle" fontFamily="Fraunces, Georgia, serif" fontSize="11" fill="var(--parchment)">E</text>
           </svg>
         </div>
 
-        <div className="ship-wrap" style={{ transform: 'scaleX(-1)' }}>
+        <div className="ship-wrap ship-wrap--mirrored">
           <svg width="160" height="100" viewBox="0 0 160 100" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M10 70h140l-14 22H24z" fill="#caa86a"/>
             <line x1="80" y1="70" x2="80" y2="14" stroke="#caa86a" strokeWidth="3"/>

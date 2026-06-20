@@ -1,5 +1,39 @@
+@import "tailwindcss";
+
+/* ── Bridge existing design tokens into Tailwind v4 utilities ── */
+@theme {
+  /* Colors */
+  --color-bg-deep: #091624;
+  --color-bg-deep-2: #0d2236;
+  --color-parchment: #f3e8cb;
+  --color-parchment-edge: #e6d3a4;
+  --color-parchment-shadow: #cdb985;
+  --color-ink: #3a2c18;
+  --color-ink-soft: #6e5a3c;
+  --color-gold: #c9a35c;
+  --color-rope: #b88a4f;
+  --color-rope-dark: #8a6435;
+  --color-lh-red: #bf3b2c;
+  --color-lh-white: #f3ece0;
+  --color-beacon-green: #5fae6e;
+  --color-beacon-green-bright: #a8e6b4;
+  --color-calm: #5fae6e;
+  --color-rough: #e0a23c;
+  --color-storm: #d9534f;
+  --color-harbor: #46b3a8;
+  --color-text-secondary: #a9bbcd;
+  --color-input-bg: #16314a;
+  --color-input-text: #eee6cf;
+  --color-beam: #fff3cf;
+
+  /* Font families */
+  --font-body: var(--font-inter, 'Inter', system-ui, sans-serif);
+  --font-display: var(--font-fraunces, 'Fraunces', Georgia, serif);
+  --font-mono: var(--font-mono, 'JetBrains Mono', 'Cascadia Code', monospace);
+}
 
   :root{
+
     /* ── Colour tokens ── */
     --bg-deep:#091624;
     --bg-deep-2:#0d2236;
@@ -2157,4 +2191,719 @@ label.field-label {
 }
 .password-toggle:hover { opacity: 1; color: var(--parchment); }
 
+
+/* ── Brand SVG icon in auth header ── */
+.brand-svg {
+  display: inline-block;
+  margin-right: 8px;
+  vertical-align: middle;
+  width: 26px;
+  height: 26px;
+}
+
+/* ── Auth / Form error banner ── */
+.auth-error-banner {
+  background: rgba(217, 83, 79, 0.15);
+  border: 1px solid var(--storm);
+  color: var(--storm);
+  border-radius: 6px;
+  padding: 0.75rem;
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+  text-align: center;
+  font-weight: 500;
+}
+
+/* ── Password input extra right padding for toggle button ── */
+.input-pw {
+  padding-right: 2.8rem !important;
+}
+
+/* ── Mirrored ship in footer ── */
+.ship-wrap--mirrored {
+  transform: scaleX(-1);
+}
+
+/* ── Dashboard / Status loading screen ── */
+.dash-loading-screen {
+  display: flex;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-deep);
+  color: var(--parchment);
+  font-family: var(--ff-display), serif;
+}
+
+.dash-loading-inner {
+  text-align: center;
+}
+
+/* ── Dashboard skeleton layouts ── */
+.dash-skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.skeleton--stat {
+  height: 110px;
+  border-radius: 10px;
+}
+
+.skeleton--full {
+  grid-column: span 4;
+  height: 300px;
+  border-radius: 10px;
+  margin-top: 1rem;
+}
+
+.skeleton--heading {
+  height: 40px;
+  width: 200px;
+  border-radius: 4px;
+}
+
+.skeleton--3col {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.skeleton--chart {
+  height: 300px;
+  border-radius: 10px;
+}
+
+.skeleton--incident {
+  height: 80px;
+  border-radius: 10px;
+}
+
+/* ── Dashboard error / disconnected panel ── */
+.dash-error-panel {
+  text-align: center;
+  padding: 3rem;
+  margin: 2rem 0;
+}
+
+.error-icon {
+  margin: 0 auto 1.5rem;
+  color: var(--storm);
+}
+
+.error-desc {
+  color: var(--text-secondary);
+  max-width: 28rem;
+  margin: 0.5rem auto 1.5rem;
+}
+
+/* ── Signal Network panel / section spacing ── */
+.panel-dark--spaced {
+  margin-bottom: 2.5rem;
+}
+
+.panel-dark--mt {
+  margin-top: 2.5rem;
+}
+
+.panel-dark--mb {
+  margin-bottom: 1.5rem;
+}
+
+.panel-dark--alert {
+  margin-bottom: 2rem;
+  border-color: rgba(217, 83, 79, 0.35) !important;
+  background: rgba(217, 83, 79, 0.06) !important;
+}
+
+/* ── Signal Network heading ── */
+.panel-section-heading {
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+  color: var(--parchment);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.panel-section-heading svg {
+  flex: none;
+}
+
+.panel-alert-heading {
+  color: var(--storm);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 0 1rem;
+}
+
+/* ── Signal Network pre block ── */
+.signal-network-body {
+  display: flex;
+  justify-content: center;
+}
+
+.signal-pre {
+  font-family: var(--ff-mono, monospace);
+  font-size: 1rem;
+  line-height: 1.6;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  overflow: visible;
+}
+
+/* ── Section header action row (tabs + button) ── */
+.section-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* ── Small primary button modifier ── */
+.btn-primary--sm {
+  font-size: 0.8rem !important;
+  padding: 0.5rem 1rem !important;
+}
+
+/* ── Monitor detail header ── */
+.monitor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.monitor-eyebrow {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--gold);
+  font-weight: 600;
+  display: block;
+}
+
+.monitor-title {
+  font-family: var(--ff-display), serif;
+  font-size: 1.6rem;
+  margin: 0.2rem 0 0.15rem;
+  color: var(--parchment);
+  letter-spacing: -0.01em;
+  font-weight: 700;
+}
+
+.monitor-url {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+.monitor-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* ── Monitor detail action buttons ── */
+.btn-outline-gold {
+  font-size: 0.8rem;
+  padding: 0.5rem 1rem;
+  background: none !important;
+  border: 1px solid var(--gold) !important;
+  color: var(--gold) !important;
+  box-shadow: none !important;
+}
+
+.btn-outline-ghost {
+  font-size: 0.8rem;
+  padding: 0.5rem 1rem;
+  background: none !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: var(--parchment) !important;
+  box-shadow: none !important;
+}
+
+.btn-danger {
+  font-size: 0.8rem;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(180deg, #bf3b2c, #8a2a1f) !important;
+  color: var(--lh-white) !important;
+  border: 1px solid #8a2a1f !important;
+  box-shadow: none !important;
+}
+
+/* ── Latency chart ── */
+.chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.chart-header h2 {
+  margin: 0;
+}
+
+.chart-container {
+  width: 100%;
+  height: 260px;
+  position: relative;
+}
+
+.chart-empty {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  opacity: 0.6;
+  font-size: 0.85rem;
+}
+
+/* ── Tooltip coloured lines ── */
+.tooltip-avg {
+  color: var(--gold);
+  margin: 0 0 0.2rem;
+}
+
+.tooltip-range {
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* ── Pagination ── */
+.pagination-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.pagination-label {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+/* ── Table utilities ── */
+.table-empty {
+  padding: 2rem;
+  text-align: center;
+  color: var(--text-secondary);
+  opacity: 0.6;
+  font-size: 0.85rem;
+}
+
+.table-empty-full {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  color: var(--text-secondary);
+  opacity: 0.7;
+}
+
+.table-empty-icon {
+  margin: 0 auto 1rem;
+  opacity: 0.4;
+  display: block;
+}
+
+.table-empty-text {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.tr-clickable {
+  cursor: pointer;
+}
+
+.td-bold {
+  font-weight: 600;
+}
+
+.td-monitor {
+  font-weight: 600;
+  color: var(--parchment);
+}
+
+.td-mono {
+  font-family: var(--ff-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.incident-monitor-link {
+  color: var(--gold);
+  text-decoration: none;
+}
+
+.incident-monitor-link:hover {
+  text-decoration: underline;
+}
+
+/* ── Incident item detail helpers ── */
+.incident-title {
+  font-weight: 600;
+}
+
+.incident-meta {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.incident-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.ongoing-label {
+  font-weight: 600;
+}
+
+/* ── Incidents page layout helpers ── */
+.incidents-skeleton-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.detail-skeleton-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+/* ── Page header (incidents page) ── */
+.page-header {
+  margin-bottom: 1.75rem;
+}
+
+.page-title {
+  font-family: var(--ff-display), serif;
+  font-size: 1.5rem;
+  margin: 0.2rem 0 0.3rem;
+  color: var(--parchment);
+  font-weight: 700;
+}
+
+.page-subtitle {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+/* ── 3-col stat row variant ── */
+.stat-row--3col {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: 2rem;
+}
+
+/* ── Active outages list ── */
+.outages-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.outage-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(217, 83, 79, 0.08);
+  border: 1px solid rgba(217, 83, 79, 0.25);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.15s ease;
+}
+
+.outage-link:hover {
+  background: rgba(217, 83, 79, 0.14);
+}
+
+.outage-link-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.outage-link-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.outage-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.outage-name {
+  font-weight: 600;
+  color: var(--parchment);
+  font-size: 0.9rem;
+}
+
+.outage-url {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.icon-muted {
+  color: var(--text-secondary);
+  opacity: 0.6;
+  display: flex;
+  align-items: center;
+}
+
+/* ── Incidents page section h2 ── */
+.panel-section-h2 {
+  margin-bottom: 1.25rem;
+}
+
+/* ── Incidents footer note ── */
+.incidents-footer-note {
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  opacity: 0.5;
+  margin-top: 1.5rem;
+}
+
+/* ── Status page specific ── */
+.status-error-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.auth-stage--top {
+  margin-top: 2rem;
+  z-index: 10;
+}
+
+.auth-card--center {
+  text-align: center;
+}
+
+.auth-card--wide {
+  max-width: 520px;
+}
+
+.error-heading {
+  font-size: 1.4rem;
+}
+
+.enter-btn--link {
+  text-decoration: none;
+  display: flex;
+  margin-top: 1.5rem;
+}
+
+.signup--ghost {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.status-badge-wrap {
+  text-align: center;
+  margin: 2rem 0 1.5rem;
+}
+
+.stage-card--light {
+  background: rgba(58, 44, 24, 0.04);
+  border: 1px solid rgba(110, 90, 60, 0.15);
+}
+
+.stage-icon--lg {
+  width: 80px;
+  height: 80px;
+}
+
+/* ── Uptime stat on status page ── */
+.uptime-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  background: rgba(58, 44, 24, 0.04);
+  padding: 1rem;
+  border-radius: 6px;
+  border: 1px solid rgba(110, 90, 60, 0.1);
+  text-align: center;
+}
+
+.uptime-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  letter-spacing: 0.08em;
+  font-weight: 600;
+}
+
+.uptime-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0.25rem 0;
+  font-family: var(--ff-mono, monospace);
+}
+
+.stat-bar--status {
+  background: rgba(58, 44, 24, 0.15);
+  height: 6px;
+  max-width: 240px;
+  margin: 0.5rem auto 0;
+}
+
+/* ── Status page incidents section ── */
+.incidents-section-heading {
+  font-family: var(--ff-display), serif;
+  font-size: 1rem;
+  letter-spacing: 0.02em;
+  border-bottom: 1px solid rgba(110, 90, 60, 0.15);
+  padding-bottom: 0.4rem;
+  color: var(--ink);
+  font-weight: 700;
+  margin: 0 0 0.75rem;
+}
+
+.incidents-scroll {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.incident-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid rgba(110, 90, 60, 0.08);
+  font-size: 0.8rem;
+}
+
+.incident-row:last-child {
+  border-bottom: none;
+}
+
+.incident-row-title {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.incident-row-date {
+  font-size: 0.7rem;
+  color: var(--ink-soft);
+}
+
+.incident-row-right {
+  text-align: right;
+}
+
+.incident-row-duration {
+  font-size: 0.7rem;
+  color: var(--ink-soft);
+  margin-top: 0.15rem;
+}
+
+.status-pill--xs {
+  font-size: 0.65rem !important;
+}
+
+.links-below--bordered {
+  margin-top: 1.5rem;
+  border-top: 1px solid rgba(110, 90, 60, 0.15);
+  padding-top: 1rem;
+}
+
+.harbor-footer--spaced {
+  margin-top: 4rem;
+}
+
+/* ── Sidebar modifier for smaller title ── */
+.sidebar-title--sm {
+  font-size: 0.85rem;
+  margin-bottom: 0.6rem;
+}
+
+/* ── Sidebar empty monitor message ── */
+.qw-empty {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  padding: 0 0.5rem;
+  opacity: 0.6;
+}
+
+/* ── Additional classes to remove remaining inline CSS ── */
+
+/* Star positions & delays */
+.star-1 { top: 9%; left: 30%; animation-delay: 0s; }
+.star-2 { top: 16%; left: 70%; animation-delay: 0.8s; }
+.star-3 { top: 6%; left: 55%; animation-delay: 1.6s; }
+.star-4 { top: 24%; left: 12%; animation-delay: 2.4s; }
+.star-5 { top: 20%; left: 88%; animation-delay: 1.1s; }
+.star-6 { top: 30%; left: 46%; animation-delay: 0.4s; }
+
+.star-home-1 { top: 5%; left: 34%; animation-delay: 0s; }
+.star-home-2 { top: 11%; left: 62%; animation-delay: 0.9s; }
+.star-home-3 { top: 3%; left: 50%; animation-delay: 1.8s; }
+.star-home-4 { top: 18%; left: 8%; animation-delay: 2.5s; }
+
+/* Radar blips on homepage */
+.radar-blip-1 { top: 30%; left: 40%; animation-delay: 0s; }
+.radar-blip-2 { top: 55%; left: 65%; animation-delay: 0.6s; }
+.radar-blip-3 { top: 68%; left: 35%; animation-delay: 1.2s; }
+.radar-blip-4 { top: 42%; left: 55%; animation-delay: 1.8s; }
+
+/* Storm cells & labels */
+.storm-cell-1 { top: 18px; left: 60px; }
+.storm-cell-2 { top: 60px; left: 190px; }
+.storm-label-1 { top: 8px; left: 64px; }
+.storm-label-2 { top: 50px; left: 194px; }
+
+/* Ship bob custom durations */
+.ship-bob--rough { animation-duration: 2.4s !important; }
+.ship-bob--storm { animation: bob-storm 1.4s ease-in-out infinite !important; }
+
+/* Signout button */
+.btn-signout {
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  opacity: 0.82;
+  padding: 0;
+}
+.btn-signout:hover {
+  opacity: 1;
+}
+
+/* Status colors */
+.text-status-paused { color: var(--ink) !important; }
+.text-status-up { color: #27522f !important; }
+.text-status-degraded { color: #5e3f0a !important; }
+.text-status-down { color: #6b1e1c !important; }
+
+/* Outage dot modifiers */
+.outage-dot.is-down {
+  background: var(--storm);
+  box-shadow: 0 0 0 3px rgba(217, 83, 79, 0.2);
+}
+.outage-dot.is-degraded {
+  background: var(--rough);
+  box-shadow: 0 0 0 3px rgba(224, 162, 60, 0.2);
+}
 

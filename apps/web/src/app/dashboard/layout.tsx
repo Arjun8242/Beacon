@@ -52,18 +52,10 @@ export default function DashboardLayout({
 
   if (!isAuth && loading) {
     return (
-      <div style={{
-        display: 'flex',
-        minHeight: '100vh',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: 'var(--bg-deep)',
-        color: 'var(--parchment)',
-        fontFamily: 'Fraunces, Georgia, serif'
-      }}>
-        <div style={{ textAlign: 'center' }}>
+      <div className="dash-loading-screen">
+        <div className="dash-loading-inner">
           <h2>Loading Dashboard...</h2>
-          <div className="skeleton" style={{ width: '120px', height: '4px', margin: '1rem auto' }}></div>
+          <div className="skeleton w-[120px] h-[4px] my-4 mx-auto"></div>
         </div>
       </div>
     );
@@ -75,7 +67,7 @@ export default function DashboardLayout({
     <div className="app-dashboard">
       <aside className="sidebar">
         <div className="brand">
-          <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '0.55rem' }}>
+          <Link href="/" className="flex items-center gap-2">
             <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <path d="M16 36h8l-1-6h-6z" fill="currentColor" opacity=".5"/>
               <path d="M14 30h12l-2-18h-8z" fill="currentColor"/>
@@ -108,9 +100,9 @@ export default function DashboardLayout({
 
         <div className="quick-watch" id="monitors">
           <p className="sidebar-eyebrow">Monitors</p>
-          <p className="sidebar-title" style={{ fontSize: '.85rem', marginBottom: '.6rem' }}>Active Monitors</p>
+          <p className="sidebar-title sidebar-title--sm">Active Monitors</p>
           {watchlist.length === 0 ? (
-            <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', padding: '0 0.5rem', opacity: 0.6 }}>No monitors registered.</p>
+            <p className="qw-empty">No monitors registered.</p>
           ) : (
             <ul className="qw-list">
               {watchlist.map((monitor) => (

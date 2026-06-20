@@ -151,21 +151,21 @@ export default function DashboardPage() {
 
   if (loading && !dashData) {
     return (
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginTop: '1rem' }}>
+      <div className="dash-skeleton-grid">
         {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="skeleton" style={{ height: '110px', borderRadius: '10px' }}></div>
+          <div key={i} className="skeleton skeleton--stat"></div>
         ))}
-        <div className="skeleton" style={{ gridColumn: 'span 4', height: '300px', borderRadius: '10px', marginTop: '1rem' }}></div>
+        <div className="skeleton skeleton--full"></div>
       </div>
     );
   }
 
   if (error && !dashData) {
     return (
-      <div className="panel-dark" style={{ textAlign: 'center', padding: '3rem', margin: '2rem 0' }}>
-        <svg style={{ margin: '0 auto 1.5rem', color: 'var(--storm)' }} width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+      <div className="panel-dark dash-error-panel">
+        <svg className="error-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
         <h3>Watchtower Disconnected</h3>
-        <p style={{ color: 'var(--text-secondary)', maxWidth: '28rem', margin: '0.5rem auto 1.5rem' }}>{error}</p>
+        <p className="error-desc">{error}</p>
         <button onClick={() => loadDashboardData(true)} className="btn-primary">Retry Sync</button>
       </div>
     );
@@ -230,39 +230,45 @@ export default function DashboardPage() {
           <p className="stat-value">{overallUptime.toFixed(2)}%</p>
           <p className="stat-sub">24-hour average</p>
           <div className="stat-bar">
-            <span style={{ 
-              width: `${overallUptime}%`, 
-              backgroundColor: overallUptime > 98 ? 'var(--calm)' : overallUptime > 90 ? 'var(--rough)' : 'var(--storm)' 
-            }}></span>
+            <span 
+              className={`h-full block transition-all duration-500 ${
+                overallUptime > 98 
+                  ? 'bg-calm' 
+                  : overallUptime > 90 
+                    ? 'bg-rough' 
+                    : 'bg-storm'
+              }`}
+              style={{ width: `${overallUptime}%` }}
+            ></span>
           </div>
         </div>
       </section>
 
       {/* ===== Signal Network Card ===== */}
-      <section className="panel-dark" style={{ marginBottom: '2.5rem' }}>
-        <h2 style={{ fontSize: '1.1rem', marginBottom: '1.5rem', color: 'var(--parchment)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+      <section className="panel-dark panel-dark--spaced">
+        <h2 className="panel-section-heading">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
           Signal Network
         </h2>
         
-        <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <pre style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '1rem', lineHeight: '1.6', background: 'transparent', padding: 0, margin: 0, overflow: 'visible' }}>
+        <div className="signal-network-body">
+          <pre className="signal-pre">
 {`                 `}
-<span style={{ color: 'var(--gold)' }}>Beacon</span>{`
+<span className="text-gold">Beacon</span>{`
                     🗼
                     │
 `}
 {filteredMonitors.length > 0 ? filteredMonitors.slice(0, 8).map((m, i, arr) => {
   const isActive = m.active !== false;
-  let color = 'var(--text-secondary)';
+  let colorClass = 'text-text-secondary';
   let lineChar = '┤';
   
   if (isActive) {
-    if (m.status === 'UP') color = 'var(--calm)';
-    else if (m.status === 'DEGRADED') color = 'var(--rough)';
-    else { color = 'var(--storm)'; lineChar = '✕'; }
+    if (m.status === 'UP') colorClass = 'text-calm';
+    else if (m.status === 'DEGRADED') colorClass = 'text-rough';
+    else { colorClass = 'text-storm'; lineChar = '✕'; }
   } else {
-    color = '#555';
+    colorClass = 'text-[#555]';
   }
   
   let name = m.name;
@@ -275,12 +281,12 @@ export default function DashboardPage() {
   
   return (
     <React.Fragment key={m.id}>
-      <span style={{ color }}>{line}{lineChar}</span>
+      <span className={colorClass}>{line}{lineChar}</span>
       {i < arr.length - 1 ? '\n                    │\n' : '\n'}
     </React.Fragment>
   );
 }) : (
-  <span style={{ color: '#555' }}>{`Awaiting Services ──✕\n`}</span>
+  <span className="text-[#555]">{`Awaiting Services ──✕\n`}</span>
 )}
           </pre>
         </div>
@@ -290,13 +296,13 @@ export default function DashboardPage() {
       <section className="vessel-section">
         <div className="section-header">
           <h2>Active Monitors</h2>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <div className="section-header-actions">
             <div className="tabs">
               <button className={`tab ${filter === 'ALL' ? 'active' : ''}`} onClick={() => setFilter('ALL')}>All ({monitors.length})</button>
               <button className={`tab ${filter === 'ACTIVE' ? 'active' : ''}`} onClick={() => setFilter('ACTIVE')}>Active ({summary.active})</button>
               <button className={`tab ${filter === 'PAUSED' ? 'active' : ''}`} onClick={() => setFilter('PAUSED')}>Paused ({summary.paused})</button>
             </div>
-            <button className="btn-primary" style={{ fontSize: '0.8rem', padding: '0.5rem 1rem' }} onClick={() => setIsModalOpen(true)}>
+            <button className="btn-primary btn-primary--sm" onClick={() => setIsModalOpen(true)}>
               Add Monitor
             </button>
           </div>
@@ -397,9 +403,9 @@ export default function DashboardPage() {
         )}
       </section>
 
-      {/* ===== Recent Incidents Table (Optional list for main page) ===== */}
+      {/* ===== Recent Incidents Table ===== */}
       {recentIncidents.length > 0 && (
-        <section className="panel-dark" style={{ marginTop: '2.5rem' }}>
+        <section className="panel-dark panel-dark--mt">
           <h2>Recent Storm Events</h2>
           <div className="checks-table-container">
             <table className="checks-table">
@@ -415,8 +421,8 @@ export default function DashboardPage() {
               <tbody>
                 {recentIncidents.map((incident) => (
                   <tr key={incident.id}>
-                    <td style={{ fontWeight: 600 }}>
-                      <Link href={`/dashboard/monitors/${incident.monitorId}`} style={{ color: 'var(--gold)' }}>
+                    <td className="td-bold">
+                      <Link href={`/dashboard/monitors/${incident.monitorId}`} className="incident-monitor-link">
                         {incident.monitorName}
                       </Link>
                     </td>
@@ -451,17 +457,7 @@ export default function DashboardPage() {
             <h2>Add Monitor</h2>
             
             {formError && (
-              <div style={{
-                background: 'rgba(217, 83, 79, 0.15)',
-                border: '1px solid var(--storm)',
-                color: 'var(--storm)',
-                borderRadius: '6px',
-                padding: '0.75rem',
-                fontSize: '0.85rem',
-                marginBottom: '1rem',
-                textAlign: 'center',
-                fontWeight: 500
-              }}>
+              <div className="auth-error-banner">
                 {formError}
               </div>
             )}
