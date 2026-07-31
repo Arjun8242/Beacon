@@ -27,6 +27,20 @@ function formatTimeAgo(isoString: string): string {
   return `${hours}h ago`;
 }
 
+function formatFailureReason(reason: string | null): string {
+  if (!reason) return '—';
+  const map: Record<string, string> = {
+    TIMEOUT: 'Timeout',
+    DNS_FAILURE: 'DNS Failure',
+    SSL_ERROR: 'SSL Certificate Error',
+    CONNECTION_REFUSED: 'Connection Refused',
+    CONNECTION_RESET: 'Connection Reset',
+    UNKNOWN_ERROR: 'Unknown Error',
+  };
+  if (reason.startsWith('HTTP_')) return reason.replace('_', ' ');
+  return map[reason] || reason;
+}
+
 export default function MonitorDetailPage() {
   const router = useRouter();
   const params = useParams();
@@ -195,7 +209,11 @@ export default function MonitorDetailPage() {
             {monitor.active ? (monitor.status === 'UP' ? 'Calm' : monitor.status === 'DEGRADED' ? 'Rough' : 'Storm') : 'Paused'}
           </p>
           <p className="stat-sub">
-            {monitor.active ? `Reporting normally every ${monitor.interval}s` : 'Monitor is currently paused'}
+            {!monitor.active
+              ? 'Monitor is currently paused'
+              : monitor.status !== 'UP' && checks.length > 0 && checks[0].failureReason
+                ? `Reason: ${formatFailureReason(checks[0].failureReason)}`
+                : `Reporting normally every ${monitor.interval}s`}
           </p>
         </div>
 
@@ -314,6 +332,7 @@ export default function MonitorDetailPage() {
                       <th>Signal Status</th>
                       <th>Latency</th>
                       <th>Response Code</th>
+                      <th>Reason</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -333,6 +352,11 @@ export default function MonitorDetailPage() {
                             ? check.statusCode 
                             : <span className="text-storm text-[0.8rem]">{check.error || 'Connection Failed'}</span>
                           }
+                        </td>
+                        <td>
+                          {check.failureReason
+                            ? <span className="text-storm text-[0.8rem]">{formatFailureReason(check.failureReason)}</span>
+                            : '—'}
                         </td>
                       </tr>
                     ))}
@@ -382,6 +406,11 @@ export default function MonitorDetailPage() {
                         {incident.resolvedAt ? 'Resolved' : 'Active'}
                       </span>
                     </div>
+                    {incident.failureReason && (
+                      <div className="incident-meta" style={{ color: 'var(--storm)' }}>
+                        Reason: {formatFailureReason(incident.failureReason)}
+                      </div>
+                    )}
                     <div className="incident-meta">
                       Triggered: {new Date(incident.startedAt).toLocaleString()}
                     </div>
