@@ -318,7 +318,7 @@ export default function Home() {
           {/*  Workers  */}
           <rect x="30" y="264" width="140" height="44" rx="8" fill="#10243a" stroke="rgba(95,174,110,.4)" strokeWidth="1.5"/>
           <text x="100" y="291" textAnchor="middle" className="arch-box-label">Worker 1</text>
-          <rect x="30" y="264" width="140" height="44" rx="8" fill="#10243a" stroke="rgba(95,174,110,.4)" strokeWidth="1.5"/>
+          <rect x="230" y="264" width="140" height="44" rx="8" fill="#10243a" stroke="rgba(95,174,110,.4)" strokeWidth="1.5"/>
           <text x="300" y="291" textAnchor="middle" className="arch-box-label">Worker 2</text>
           <rect x="430" y="264" width="140" height="44" rx="8" fill="#10243a" stroke="rgba(95,174,110,.4)" strokeWidth="1.5"/>
           <text x="500" y="291" textAnchor="middle" className="arch-box-label">Worker 3</text>
