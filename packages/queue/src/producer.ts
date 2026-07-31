@@ -1,9 +1,22 @@
 import { Queue } from 'bullmq';
 import { redisConnection } from './redis';
 import { QUEUE_NAMES } from './constants';
-import { MonitorCheckJob } from 'shared';
+import { MonitorCheckJob, AlertNotificationJob } from 'shared';
 
 export const monitorQueue = new Queue<MonitorCheckJob>(QUEUE_NAMES.MONITOR_CHECKS, {
+  connection: redisConnection,
+  defaultJobOptions: {
+    attempts: 3,
+    backoff: {
+      type: 'exponential',
+      delay: 1000,
+    },
+    removeOnComplete: true,
+    removeOnFail: true,
+  },
+});
+
+export const alertQueue = new Queue<AlertNotificationJob>(QUEUE_NAMES.ALERT_NOTIFICATIONS, {
   connection: redisConnection,
   defaultJobOptions: {
     attempts: 3,
@@ -31,5 +44,9 @@ export async function addCheckJobsBulk(payloads: MonitorCheckJob[]) {
     },
   }));
   return monitorQueue.addBulk(jobs);
+}
+
+export async function addAlertNotificationJob(payload: AlertNotificationJob) {
+  return alertQueue.add('alert', payload);
 }
 

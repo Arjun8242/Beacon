@@ -80,3 +80,17 @@ model Incident {
 
   @@index([monitorId, startedAt])
 }
+
+model FailedJob {
+  id           String   @id @default(uuid())
+  jobType      String
+  monitorId    String?
+  jobId        String?
+  payload      Json
+  errorMessage String?
+  attemptsMade Int      @default(0)
+  failedAt     DateTime @default(now())
+
+  @@index([failedAt])
+}
+
