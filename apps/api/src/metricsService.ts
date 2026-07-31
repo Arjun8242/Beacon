@@ -51,7 +51,7 @@ export async function getChecks(monitorId: string, userId: string, window: Windo
       orderBy: { checkedAt: 'desc' },
       skip,
       take: limit,
-      select: { id: true, status: true, statusCode: true, responseTime: true, checkedAt: true },
+      select: { id: true, status: true, statusCode: true, responseTime: true, error: true, failureReason: true, checkedAt: true },
     }),
     prisma.check.count({ where: { monitorId, checkedAt: { gte: since } } }),
   ]);
@@ -70,7 +70,7 @@ export async function getIncidents(monitorId: string, userId: string, page: numb
       orderBy: { startedAt: 'desc' },
       skip,
       take: limit,
-      select: { id: true, startedAt: true, resolvedAt: true, durationSeconds: true },
+      select: { id: true, startedAt: true, resolvedAt: true, durationSeconds: true, failureReason: true },
     }),
     prisma.incident.count({ where: { monitorId } }),
   ]);

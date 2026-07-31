@@ -24,7 +24,7 @@ const worker = new Worker<MonitorCheckJob>(
 
     const result = await runCheck(url);
     await persistResult({ monitorId, ...result });
-    await detectIncident({ monitorId, checkStatus: result.checkStatus });
+    await detectIncident({ monitorId, checkStatus: result.checkStatus, failureReason: result.failureReason });
 
     console.log(JSON.stringify({
       event: 'check_complete',
@@ -32,6 +32,7 @@ const worker = new Worker<MonitorCheckJob>(
       status: result.checkStatus,
       statusCode: result.statusCode,
       responseTime: result.responseTime,
+      failureReason: result.failureReason,
     }));
   },
   {

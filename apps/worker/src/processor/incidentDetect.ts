@@ -1,15 +1,16 @@
 import { prisma } from 'database';
-import { CheckStatus, CONFIRM_DOWN_THRESHOLD } from 'shared';
+import { CheckStatus, FailureReason, CONFIRM_DOWN_THRESHOLD } from 'shared';
 import { incrementFailures, resetFailures } from '../cache/failureCounter';
 import { setStatusCache } from '../cache/statusCache';
 
 type IncidentParams = {
   monitorId: string;
   checkStatus: CheckStatus;
+  failureReason: FailureReason | null;
 };
 
 export async function detectIncident(params: IncidentParams): Promise<void> {
-  const { monitorId, checkStatus } = params;
+  const { monitorId, checkStatus, failureReason } = params;
 
   // Always update the fast-read status cache
   await setStatusCache(monitorId, checkStatus);
@@ -51,7 +52,7 @@ export async function detectIncident(params: IncidentParams): Promise<void> {
 
       if (!existingIncident) {
         const incident = await prisma.incident.create({
-          data: { monitorId },
+          data: { monitorId, failureReason },
         });
 
         console.log(JSON.stringify({
@@ -59,6 +60,7 @@ export async function detectIncident(params: IncidentParams): Promise<void> {
           monitorId,
           incidentId: incident.id,
           failureCount,
+          failureReason,
         }));
       }
     }
