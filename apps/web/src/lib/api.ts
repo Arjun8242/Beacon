@@ -21,6 +21,8 @@ export interface Monitor {
   interval: number;
   uptimePercent24h: number;
   avgResponseTime24h: number | null;
+  latestResponseTime: number | null;
+  lastCheckedAt: string | null;
   createdAt?: string;
   updatedAt?: string;
 }

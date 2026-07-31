@@ -24,6 +24,6 @@ export async function persistResult(params: PersistParams) {
 
   await prisma.monitor.update({
     where: { id: monitorId },
-    data: { status: checkStatus, lastCheckedAt: new Date() },
+    data: { status: checkStatus, lastCheckedAt: new Date(), latestResponseTime: responseTime },
   });
 }

@@ -61,6 +61,8 @@ export async function getDashboardSummary(userId: string) {
       interval: monitor.interval,
       uptimePercent24h: uptimePercent,
       avgResponseTime24h: avgResponseTime,
+      latestResponseTime: monitor.latestResponseTime,
+      lastCheckedAt: monitor.lastCheckedAt,
     };
   });
 

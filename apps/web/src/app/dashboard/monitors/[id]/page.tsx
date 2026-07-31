@@ -18,6 +18,15 @@ function formatTimestamp(isoString: string, windowType: '24h' | '7d' | '30d'): s
   }
 }
 
+function formatTimeAgo(isoString: string): string {
+  const seconds = Math.floor((Date.now() - new Date(isoString).getTime()) / 1000);
+  if (seconds < 60) return `${seconds}s ago`;
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  return `${hours}h ago`;
+}
+
 export default function MonitorDetailPage() {
   const router = useRouter();
   const params = useParams();
@@ -199,9 +208,13 @@ export default function MonitorDetailPage() {
 
         <div className="stat-card">
           <svg className="bg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
-          <div className="stat-top">Avg Latency</div>
-          <p className="stat-value">{stats?.avgResponseTime ? `${stats.avgResponseTime}ms` : '—'}</p>
-          <p className="stat-sub">Response roundtrip speed</p>
+          <div className="stat-top">Latest Response Time</div>
+          <p className="stat-value">{monitor.latestResponseTime != null ? `${monitor.latestResponseTime}ms` : '—'}</p>
+          <p className="stat-sub">
+            {monitor.lastCheckedAt
+              ? `Last check ${formatTimeAgo(monitor.lastCheckedAt)}`
+              : 'No check completed yet'}
+          </p>
         </div>
 
         <div className="stat-card">
