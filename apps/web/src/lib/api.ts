@@ -54,6 +54,7 @@ export interface Incident {
   startedAt: string;
   resolvedAt: string | null;
   durationSeconds: number | null;
+  failureReason: string | null;
   monitorName?: string;
   monitorSlug?: string;
 }
@@ -66,6 +67,7 @@ export interface Check {
   responseTime: number;
   statusCode: number | null;
   error: string | null;
+  failureReason: string | null;
 }
 
 export interface MonitorStats {
