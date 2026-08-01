@@ -14,7 +14,8 @@
     "start:monolith": "concurrently -n API,WORKER,SCHEDULER -c blue,green,yellow \"node apps/api/dist/index.js\" \"node apps/worker/dist/index.js\" \"node apps/scheduler/dist/index.js\"",
     "start:api": "node apps/api/dist/index.js",
     "start:worker": "node apps/worker/dist/index.js",
-    "start:scheduler": "node apps/scheduler/dist/index.js"
+    "start:scheduler": "node apps/scheduler/dist/index.js",
+    "start:notifier": "node apps/notifier/dist/index.js"
   },
   "dependencies": {
     "concurrently": "^9.0.0",

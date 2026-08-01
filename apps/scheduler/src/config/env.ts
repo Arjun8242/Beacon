@@ -5,8 +5,7 @@ config();
 
 const envSchema = z.object({
   DATABASE_URL: z.string().min(1),
-  REDIS_HOST: z.string().default('localhost').optional(),
-  REDIS_PORT: z.coerce.number().int().positive().default(6379).optional(),
+  REDIS_URL: z.string().default('redis://localhost:6379'),
   SCHEDULER_INTERVAL_MS: z.coerce.number().int().positive().default(30000),
 });
 

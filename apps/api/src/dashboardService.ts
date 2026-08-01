@@ -104,3 +104,11 @@ export async function getDashboardSummary(userId: string) {
     recentIncidents: formattedIncidents,
   };
 }
+
+export async function getFailedJobs(jobType?: string) {
+  return prisma.failedJob.findMany({
+    where: jobType ? { jobType } : undefined,
+    orderBy: { failedAt: 'desc' },
+  });
+}
+
