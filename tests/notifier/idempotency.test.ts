@@ -101,7 +101,7 @@ describe('processAlertJob idempotency handling', () => {
     await processAlertJob(sampleJobData);
 
     expect(spyLog).toHaveBeenCalledWith(
-      expect.stringContaining('"event":"alert_email_sent"')
+      expect.stringContaining('"outcome":"sent"')
     );
     expect(sendEmail).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -119,7 +119,7 @@ describe('processAlertJob idempotency handling', () => {
     await processAlertJob(sampleJobData);
 
     expect(spyLog).toHaveBeenCalledWith(
-      expect.stringContaining('"event":"alert_skipped_duplicate"')
+      expect.stringContaining('"outcome":"skipped_duplicate"')
     );
     expect(sendEmail).not.toHaveBeenCalled();
 

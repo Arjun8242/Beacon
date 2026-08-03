@@ -10,5 +10,5 @@ export async function getRecipientEmailForMonitor(monitorId: string): Promise<st
     },
   });
 
-  return monitor?.user?.email ?? null;
+  return monitor ? monitor.user.email : null;
 }

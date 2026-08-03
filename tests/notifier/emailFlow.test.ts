@@ -72,7 +72,7 @@ describe('processAlertJob email sending flow', () => {
 
     expect(sendEmail).not.toHaveBeenCalled();
     expect(spyWarn).toHaveBeenCalledWith(
-      expect.stringContaining('"event":"alert_skipped_missing_recipient"')
+      expect.stringContaining('"outcome":"skipped_no_recipient"')
     );
 
     spyWarn.mockRestore();
