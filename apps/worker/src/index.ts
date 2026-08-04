@@ -11,6 +11,7 @@ process.on('uncaughtException', (err) => {
 import './config/env';
 import { Worker } from 'bullmq';
 import { redisConnection, QUEUE_NAMES } from 'queue';
+import { prisma } from 'database';
 import type { MonitorCheckJob } from 'shared';
 import { env } from './config/env';
 import { runCheck } from './processor/checkRunner';
@@ -41,8 +42,30 @@ const worker = new Worker<MonitorCheckJob>(
   }
 );
 
-worker.on('failed', (job, err) => {
-  console.error(JSON.stringify({ event: 'job_failed', jobId: job?.id, error: err.message }));
+worker.on('failed', async (job, err) => {
+  const maxAttempts = job?.opts?.attempts ?? 3;
+  const attemptsMade = job?.attemptsMade ?? 0;
+
+  if (job && attemptsMade >= maxAttempts) {
+    console.error(JSON.stringify({ event: 'job_dead_letter', jobId: job.id, monitorId: job.data?.monitorId, attemptsMade, error: err.message }));
+    try {
+      await prisma.failedJob.create({
+        data: {
+          jobType: 'MONITOR_CHECK',
+          monitorId: job.data?.monitorId ?? null,
+          jobId: job.id ?? null,
+          payload: job.data as any,
+          errorMessage: err.message,
+          attemptsMade,
+          failedAt: new Date(),
+        },
+      });
+    } catch (dbErr) {
+      console.error('Failed to persist MONITOR_CHECK to FailedJob table:', dbErr);
+    }
+  } else {
+    console.error(JSON.stringify({ event: 'job_failed', jobId: job?.id, attemptsMade, error: err.message }));
+  }
 });
 
 console.log(JSON.stringify({ event: 'worker_started', concurrency: env.WORKER_CONCURRENCY }));

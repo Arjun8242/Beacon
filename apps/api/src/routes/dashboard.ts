@@ -17,4 +17,15 @@ router.get('/', async (req, res, next) => {
   }
 });
 
+// GET /api/v1/dashboard/failed-jobs
+router.get('/failed-jobs', async (req, res, next) => {
+  try {
+    const jobType = typeof req.query.jobType === 'string' ? req.query.jobType : undefined;
+    const failedJobs = await dashboardService.getFailedJobs(jobType);
+    res.json(failedJobs);
+  } catch (err) {
+    next(err);
+  }
+});
+
 export default router;

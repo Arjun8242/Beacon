@@ -133,19 +133,26 @@ Beacon addresses the challenges of reliable, low-overhead website and API health
 |  (Cron Engine)    |                      |           |
 +---------+---------+                      +-----+-----+
           |                                      ^
-          | Push Job                             | Write Metrics &
+          | Push Check Job                       | Write Metrics &
           v                                      | Incidents
   +-------+-------+                              |
   |  Redis Queue  |==============================+
   |   (Upstash)   |
   +-------+-------+
+    |           ^
+    | Pull      | Push Alert Job
+    v           |
++---------+-----+------+       Probes HTTP       +-----------------+
+|     Worker Pool      |========================>| Target Websites |
+|   (Worker Service)   |                         +-----------------+
++----------------------+
           |
-          | Pull Check Job
+          | Alert Job in Queue
           v
-+---------+---------+      Probes HTTP       +-----------------+
-|   Worker Pool     |=======================>| Target Websites |
-| (Worker Service)  |                        +-----------------+
-+-------------------+
++----------------------+       Sends Email       +-----------------+
+|   Notifier Service   |========================>|   Resend API    |
+|  (Alert Consumer)    |                         +-----------------+
++----------------------+
 ```
 
 ---
@@ -172,6 +179,33 @@ Beacon addresses the challenges of reliable, low-overhead website and API health
    * If a monitor changes state (e.g., `UP` to `DOWN`), the worker starts a new `Incident` record.
    * Once the target site recovers, the incident is closed, and the duration is calculated.
 
+5. **Notification Dispatch (`apps/notifier`):**
+   * When an `Incident` is created (`OPEN`) or resolved (`RESOLVED`), the worker enqueues an `AlertNotificationJob` to the `ALERT_NOTIFICATIONS` queue.
+   * The Notifier service consumes the job, runs a Redis-backed idempotency check (`alert-sent:{incidentId}:{eventType}`), resolves the monitor owner's email address, and dispatches rich transactional emails via Resend API.
+   * Final retry failures are written to `FailedJob` (`jobType: EMAIL_NOTIFICATION`) for administrative monitoring.
+
+---
+
+## 📧 Email Notification System
+
+Beacon includes a dedicated microservice (`apps/notifier`) for event-driven, decoupled email alerts.
+
+### Architecture & Lifecycle
+1. **Producer Hook:** `apps/worker` monitors failure thresholds. Upon crossing `CONFIRM_DOWN_THRESHOLD` or upon service recovery (`RESOLVED`), it enqueues an `AlertNotificationJob`.
+2. **Idempotency Guard:** `apps/notifier` enforces Redis-backed deduplication using `alert-sent:{incidentId}:{eventType}` keys with a 300s TTL, guaranteeing at-most-once delivery per event.
+3. **Recipient Resolution:** Queries the account owner (`User.email`) assigned to the monitor target.
+4. **Resend Delivery:** Renders responsive HTML templates (with downtime duration calculation for resolved incidents) and sends emails via Resend API using unique `Idempotency-Key` headers.
+5. **Dead Letter Queue (DLQ):** If Resend API calls fail after 3 BullMQ attempts with exponential backoff, the job is persisted to the `FailedJob` table (`jobType = EMAIL_NOTIFICATION`) for administrative review.
+
+### Resend Setup Steps
+1. Create a free account at [Resend](https://resend.com).
+2. Generate an API Key from the Resend Dashboard.
+3. Set `RESEND_API_KEY` and `RESEND_FROM_EMAIL` (e.g. `alerts@beacon.dev`) in your environment configuration.
+
+### Scope & Architectural Trade-offs (V1 Scope Decision)
+* **No Outage Reminder Emails in V1:** Notifications are intentionally dispatched **only twice per incident**: once when the incident is opened (`OPEN`) and once when it is resolved (`RESOLVED`).
+* **Design Rationale:** Sending periodic reminder emails during ongoing outages is intentionally omitted in V1 to avoid inbox clutter, email fatigue, and unnecessary API key rate limit exhaustion.
+
 ---
 
 ## 🛠️ Tech Stack
@@ -185,9 +219,11 @@ Beacon addresses the challenges of reliable, low-overhead website and API health
 * **Frontend:** [Next.js](https://nextjs.org/) (App Router, Tailwind CSS, TypeScript) for data visualization and configuration dashboard.
 * **API Service:** [Node.js](https://nodejs.org/) & [Express.js](https://expressjs.com/) for business logic, authentication, and stats endpoints.
 * **Scheduler Service:** Node.js standalone cron daemon query runner.
-* **Worker Service:** Standalone task executor consuming queue messages and performing net IO.
+* **Worker Service:** Standalone task executor consuming check jobs and performing net IO.
+* **Notifier Service:** Microservice for async alert email dispatch via Resend API.
 * **Database & ORM:** [PostgreSQL](https://www.postgresql.org/) + [Prisma ORM](https://www.prisma.io/) for database schemas, relations, and type-safe client operations.
 * **Queue Engine:** [Redis](https://redis.io/) + [BullMQ](https://bullmq.io/) for message broker functionality.
+
 
 ---
 
@@ -312,6 +348,9 @@ Refer to `.env.example` at the root directory:
 | `BCRYPT_COST` | Salt rounds for bcrypt hashing | `10` |
 | `WORKER_CONCURRENCY` | Concurrent jobs per worker instance | `10` |
 | `SCHEDULER_INTERVAL_MS` | DB Polling frequency for Scheduler | `30000` |
+| `RESEND_API_KEY` | Resend API Key for dispatching alert emails | `re_123456789` |
+| `RESEND_FROM_EMAIL` | Sender email address for alert emails | `alerts@beacon.dev` |
+
 
 ---
 

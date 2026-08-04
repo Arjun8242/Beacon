@@ -82,6 +82,16 @@ export type MonitorCheckJob = {
   url: string;
 };
 
+export type AlertNotificationJob = {
+  incidentId: string;
+  monitorId: string;
+  monitorName: string;
+  url: string;
+  eventType: 'OPEN' | 'RESOLVED';
+  startedAt: Date | string;
+  resolvedAt?: Date | string;
+};
+
 export type StatusResult = {
   checkStatus: CheckStatus;
   failureReason: FailureReason | null;

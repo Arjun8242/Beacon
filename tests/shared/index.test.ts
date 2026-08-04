@@ -3,39 +3,39 @@ import { determineStatus, slugify, calculateUptimePercent, getWindowStart, Check
 
 describe('determineStatus', () => {
   it('should return DOWN if error is provided', () => {
-    expect(determineStatus(200, new Error('Network error'))).toBe(CheckStatus.DOWN);
+    expect(determineStatus(200, new Error('Network error')).checkStatus).toBe(CheckStatus.DOWN);
   });
 
   it('should return DOWN if statusCode is undefined or null', () => {
-    expect(determineStatus()).toBe(CheckStatus.DOWN);
+    expect(determineStatus().checkStatus).toBe(CheckStatus.DOWN);
   });
 
   it('should return DOWN if statusCode is >= 500', () => {
-    expect(determineStatus(500)).toBe(CheckStatus.DOWN);
-    expect(determineStatus(503)).toBe(CheckStatus.DOWN);
+    expect(determineStatus(500).checkStatus).toBe(CheckStatus.DOWN);
+    expect(determineStatus(503).checkStatus).toBe(CheckStatus.DOWN);
   });
 
-  it('should return DEGRADED if statusCode is between 400 and 499', () => {
-    expect(determineStatus(400)).toBe(CheckStatus.DEGRADED);
-    expect(determineStatus(404)).toBe(CheckStatus.DEGRADED);
-    expect(determineStatus(499)).toBe(CheckStatus.DEGRADED);
+  it('should return DOWN if statusCode is between 400 and 499', () => {
+    expect(determineStatus(400).checkStatus).toBe(CheckStatus.DOWN);
+    expect(determineStatus(404).checkStatus).toBe(CheckStatus.DOWN);
+    expect(determineStatus(499).checkStatus).toBe(CheckStatus.DOWN);
   });
 
   it('should return DEGRADED if responseTime > 5000', () => {
-    expect(determineStatus(200, undefined, 5001)).toBe(CheckStatus.DEGRADED);
-    expect(determineStatus(200, undefined, 10000)).toBe(CheckStatus.DEGRADED);
+    expect(determineStatus(200, undefined, 5001).checkStatus).toBe(CheckStatus.DEGRADED);
+    expect(determineStatus(200, undefined, 10000).checkStatus).toBe(CheckStatus.DEGRADED);
   });
 
   it('should return UP if responseTime <= 5000', () => {
-    expect(determineStatus(200, undefined, 5000)).toBe(CheckStatus.UP);
-    expect(determineStatus(200, undefined, 200)).toBe(CheckStatus.UP);
+    expect(determineStatus(200, undefined, 5000).checkStatus).toBe(CheckStatus.UP);
+    expect(determineStatus(200, undefined, 200).checkStatus).toBe(CheckStatus.UP);
   });
 
   it('should return UP if statusCode is between 100 and 399', () => {
-    expect(determineStatus(200)).toBe(CheckStatus.UP);
-    expect(determineStatus(201)).toBe(CheckStatus.UP);
-    expect(determineStatus(301)).toBe(CheckStatus.UP);
-    expect(determineStatus(302)).toBe(CheckStatus.UP);
+    expect(determineStatus(200).checkStatus).toBe(CheckStatus.UP);
+    expect(determineStatus(201).checkStatus).toBe(CheckStatus.UP);
+    expect(determineStatus(301).checkStatus).toBe(CheckStatus.UP);
+    expect(determineStatus(302).checkStatus).toBe(CheckStatus.UP);
   });
 });
 
