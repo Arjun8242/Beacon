@@ -14,6 +14,9 @@ importers:
       database:
         specifier: workspace:^
         version: link:packages/database
+      queue:
+        specifier: workspace:^
+        version: link:packages/queue
       shared:
         specifier: workspace:^
         version: link:packages/shared

@@ -91,7 +91,7 @@ describe('detectIncident', () => {
   });
 
   describe('when status is non-UP', () => {
-    it('should increment failure counter and not enqueue notification below threshold', async () => {
+    it('should not enqueue notification on HEALTHY -> DETECTING transition (failure count 1 below threshold)', async () => {
       vi.mocked(incrementFailures).mockResolvedValue(1);
       await detectIncident({ monitorId: 'm1', checkStatus: CheckStatus.DOWN, failureReason: null });
       expect(incrementFailures).toHaveBeenCalledWith('m1');
@@ -99,12 +99,13 @@ describe('detectIncident', () => {
       expect(addAlertNotificationJob).not.toHaveBeenCalled();
     });
 
-    it('should not create incident if failure count is below threshold', async () => {
+    it('should not enqueue notification on intermediate DETECTING -> DETECTING transition (failure count below threshold)', async () => {
       vi.mocked(incrementFailures).mockResolvedValue(CONFIRM_DOWN_THRESHOLD - 1);
       await detectIncident({ monitorId: 'm1', checkStatus: CheckStatus.DOWN, failureReason: null });
       expect(prisma.incident.create).not.toHaveBeenCalled();
       expect(addAlertNotificationJob).not.toHaveBeenCalled();
     });
+
 
     it('should create incident and enqueue OPEN notification if threshold reached and no open incident', async () => {
       const startedAt = new Date();

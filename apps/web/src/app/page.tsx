@@ -231,7 +231,7 @@ export default function Home() {
       <div className="browser-frame">
         <div className="browser-bar">
           <span className="traffic"></span><span className="traffic"></span><span className="traffic"></span>
-          <span className="browser-url">app.beacon.dev/dashboard</span>
+          <span className="browser-url">app.arjunbuilds.me/dashboard</span>
         </div>
         <div className="mini-dashboard">
           <div className="mini-sidebar" aria-hidden="true">
