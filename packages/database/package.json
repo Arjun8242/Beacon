@@ -14,7 +14,7 @@
     "build": "tsc",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
-    "db:seed": "ts-node src/seed.ts"
+    "db:migrate": "prisma migrate deploy"
   },
   "dependencies": {
     "@prisma/client": "^5.0.0",

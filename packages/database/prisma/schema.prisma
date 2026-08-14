@@ -94,3 +94,13 @@ model FailedJob {
   @@index([failedAt])
 }
 
+/// Transactional outbox for crash-safe monitor check scheduling.
+/// Rows are written in the same DB transaction that claims monitors,
+/// then drained → enqueued to BullMQ → deleted after commit.
+model PendingCheck {
+  id        String   @id @default(uuid())
+  monitorId String
+  url       String
+  claimedAt DateTime @default(now())
+}
+

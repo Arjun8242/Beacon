@@ -21,7 +21,7 @@ COPY packages/database/package.json ./packages/database/
 COPY packages/queue/package.json    ./packages/queue/
 COPY packages/shared/package.json   ./packages/shared/
 
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile --ignore-scripts
 
 COPY packages/ ./packages/
 COPY apps/notifier/ ./apps/notifier/

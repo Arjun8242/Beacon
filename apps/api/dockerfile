@@ -18,13 +18,14 @@ COPY package.json ./
 COPY apps/api/package.json          ./apps/api/
 COPY apps/scheduler/package.json    ./apps/scheduler/
 COPY apps/worker/package.json       ./apps/worker/
+COPY apps/notifier/package.json     ./apps/notifier/
 COPY apps/web/package.json          ./apps/web/
 COPY packages/database/package.json ./packages/database/
 COPY packages/queue/package.json    ./packages/queue/
 COPY packages/shared/package.json   ./packages/shared/
 
 # Install all dependencies (needed to compile workspace packages)
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile --ignore-scripts
 
 # Copy source code
 COPY packages/ ./packages/
@@ -57,6 +58,7 @@ COPY package.json ./
 COPY apps/api/package.json          ./apps/api/
 COPY apps/scheduler/package.json    ./apps/scheduler/
 COPY apps/worker/package.json       ./apps/worker/
+COPY apps/notifier/package.json     ./apps/notifier/
 COPY apps/web/package.json          ./apps/web/
 COPY packages/database/package.json ./packages/database/
 COPY packages/queue/package.json    ./packages/queue/

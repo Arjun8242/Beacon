@@ -9,6 +9,7 @@
     "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
     "db:push": "pnpm --filter database db:push",
     "db:generate": "pnpm --filter database db:generate",
+    "db:migrate": "pnpm --filter database db:migrate",
     "test": "vitest run",
     "postinstall": "pnpm run db:generate",
     "start:monolith": "concurrently -n API,WORKER,SCHEDULER -c blue,green,yellow \"node apps/api/dist/index.js\" \"node apps/worker/dist/index.js\" \"node apps/scheduler/dist/index.js\"",

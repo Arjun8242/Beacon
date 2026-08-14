@@ -15,12 +15,13 @@ COPY package.json ./
 COPY apps/api/package.json          ./apps/api/
 COPY apps/scheduler/package.json    ./apps/scheduler/
 COPY apps/worker/package.json       ./apps/worker/
+COPY apps/notifier/package.json     ./apps/notifier/
 COPY apps/web/package.json          ./apps/web/
 COPY packages/database/package.json ./packages/database/
 COPY packages/queue/package.json    ./packages/queue/
 COPY packages/shared/package.json   ./packages/shared/
 
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile --ignore-scripts
 
 # ─── Stage 2: Builder ─────────────────────────────────────────────────────────
 FROM node:20-alpine AS builder
@@ -43,6 +44,7 @@ COPY packages/ ./packages/
 # Update the API URL to point to the internal service name in production
 ENV NEXT_PUBLIC_API_URL=http://api:3001
 
+RUN pnpm --filter shared build
 RUN pnpm --filter web build
 
 # ─── Stage 3: Production runner ───────────────────────────────────────────────
