@@ -395,20 +395,108 @@ These services are orchestrated concurrently inside the container environment us
 
 ## 🧠 Engineering Challenges Solved
 
-### 1. Race Conditions & Double Scheduling
-* **Problem:** In a multi-replica environment, multiple scheduler instances might pick up the same active monitor targets at the same instant, queueing duplicate checks.
-* **Solution:** Used atomic database updates. When the scheduler queries for active monitors, it performs a write lock update:
-  ```sql
-  UPDATE "Monitor"
-  SET "nextCheckAt" = NOW() + INTERVAL '1 second' * "interval", "lastCheckedAt" = NOW()
-  WHERE id IN (
-      SELECT id FROM "Monitor"
-      WHERE "active" = true AND "nextCheckAt" <= NOW()
-      FOR UPDATE SKIP LOCKED
-  )
-  RETURNING *;
-  ```
-  This ensures that once a scheduler fetches a batch of monitors, no other scheduler can see or enqueue them.
+### 1. Race Conditions & Double Scheduling (Atomic Locking + Transactional Outbox)
+
+#### The Problem: Double Scheduling in Multi-Replica Deployments
+When running multiple scheduler instances (e.g., `scheduler-1` and `scheduler-2`) for high availability or horizontal redundancy, naive scheduling using standard non-locking queries (like `prisma.monitor.findMany()`) creates severe race conditions:
+1. Both scheduler replicas tick at the same scheduled second (e.g., `*:00` and `*:30`).
+2. Both replicas execute `SELECT ... WHERE active = true AND nextCheckAt <= NOW()` simultaneously before either replica has updated `nextCheckAt`.
+3. Both replicas fetch the exact same batch of due monitors and enqueue duplicate jobs to BullMQ.
+4. **Result:** Target URLs are probed twice per interval, generating duplicate database checks, wasted worker compute, and race conditions in incident detection state transitions.
+
+```
+                    ┌─────────────────────────┐
+                    │       PostgreSQL        │
+                    └────────────┬────────────┘
+                         ▲                ▲
+       1. SELECT due     │                │ 1. SELECT due
+       (same rows read)  │                │ (same rows read)
+                         │                │
+                ┌────────┴─────┐    ┌─────┴────────┐
+                │ Scheduler 1  │    │ Scheduler 2  │
+                └────────┬─────┘    └─────┬────────┘
+                         │                │
+       2. Enqueue jobs   │                │ 2. Enqueue duplicate jobs
+                         ▼                ▼
+                    ┌─────────────────────────┐
+                    │      BullMQ (Redis)     │
+                    │  [Job 1] [Job 1 (DUP)]  │ ❌ Double Scheduling
+                    └─────────────────────────┘
+```
+
+#### The Solution: Two-Layer Architecture
+
+To eliminate race conditions while guaranteeing zero lost checks during process crashes, Beacon implements a dual-layer strategy:
+
+```
+                                  PostgreSQL (Single ACID Transaction)
+                    ┌──────────────────────────────────────────────────────────────┐
+                    │ 1. SELECT ... FOR UPDATE SKIP LOCKED                         │
+                    │ 2. UPDATE "Monitor" (bump nextCheckAt)                       │
+                    │ 3. INSERT INTO "PendingCheck" (Transactional Outbox)         │
+                    └──────────────────────────────┬───────────────────────────────┘
+                                                   │
+                                                   ▼ (Transaction Committed)
+                                      ┌────────────────────────┐
+                                      │ Drain Outbox & Enqueue │
+                                      │    to BullMQ (Redis)   │
+                                      └────────────┬───────────┘
+                                                   │
+                                                   ▼ (On Success)
+                                      ┌────────────────────────┐
+                                      │   DELETE FROM Outbox   │
+                                      │    ("PendingCheck")    │
+                                      └────────────────────────┘
+```
+
+##### Layer 1: Atomic Row Claiming (`FOR UPDATE SKIP LOCKED`)
+Instead of separate `SELECT` and `UPDATE` steps, the scheduler executes an atomic PostgreSQL Common Table Expression (CTE):
+* **Row-Level Locking:** `FOR UPDATE` locks the selected batch of due monitors for the duration of the query.
+* **Non-Blocking Skip:** `SKIP LOCKED` instructs PostgreSQL to immediately skip any rows already locked by another concurrent transaction rather than waiting or blocking.
+* When `scheduler-1` claims a batch of rows, `scheduler-2` concurrently executing the same query will skip those claimed rows without delay and process only the remaining unclaimed monitors (or return 0 rows).
+
+##### Layer 2: Transactional Outbox Pattern (`PendingCheck`)
+Relying on transient in-memory queues between database updates and Redis enqueues introduces crash vulnerability: if a scheduler claims monitors and commits the `nextCheckAt` bump to PostgreSQL but crashes before pushing to BullMQ, those monitors would be missed until their next interval.
+
+Beacon solves this using the **Transactional Outbox Pattern**:
+1. **Atomic Staging:** In the exact same database transaction that locks monitors and updates `nextCheckAt`, the claimed monitors are written to an outbox table (`PendingCheck`).
+2. **Post-Commit Dispatch:** Once the transaction commits, the scheduler reads the staged outbox rows, bulk-enqueues them to BullMQ via `addCheckJobsBulk()`, and deletes the outbox rows upon confirmation.
+3. **Crash Recovery (`drainStaleOutbox`):** On scheduler startup or container reboot, the system automatically checks for any orphaned outbox rows left behind by a crashed predecessor and drains them immediately before the cron scheduler begins ticking.
+
+#### The Atomic CTE Implementation
+
+```sql
+WITH due AS (
+  SELECT id, url, interval
+  FROM "Monitor"
+  WHERE "active" = true AND "nextCheckAt" <= NOW()
+  ORDER BY "nextCheckAt" ASC
+  LIMIT 1000
+  FOR UPDATE SKIP LOCKED
+),
+updated AS (
+  UPDATE "Monitor" m
+  SET "nextCheckAt" = NOW() + make_interval(secs => due.interval),
+      "lastCheckedAt" = NOW()
+  FROM due
+  WHERE m.id = due.id
+  RETURNING m.id AS "monitorId", m.url
+)
+INSERT INTO "PendingCheck" (id, "monitorId", url, "claimedAt")
+SELECT gen_random_uuid(), "monitorId", url, NOW()
+FROM updated
+RETURNING id, "monitorId", url;
+```
+
+#### Verification & Live Reproduction
+
+The solution was verified by running two live scheduler instances simultaneously (`scheduler-1` and `scheduler-2`):
+
+| Test Scenario | Scheduler-1 Output | Scheduler-2 Output | Result |
+| :--- | :--- | :--- | :--- |
+| **Before Fix** (Naive `findMany`) | `{"found": 3, "enqueued": 3}` | `{"found": 3, "enqueued": 3}` | ❌ **6 total jobs** queued (100% duplicate rate) |
+| **After Fix** (`SKIP LOCKED` + Outbox) | `{"found": 3, "enqueued": 3}` | `{"found": 0, "enqueued": 0}` | ✅ **3 total jobs** queued (0% duplicate rate) |
+| **Outbox Verification** | `PendingCheck` count = `0` | `PendingCheck` count = `0` | ✅ Outbox completely drained & purged |
 
 ### 2. High Connection Density with Serverless Postgres
 * **Problem:** Serverless platforms like Neon have low connection thresholds, which spin up quickly when worker pods scale up.
@@ -424,16 +512,25 @@ These services are orchestrated concurrently inside the container environment us
 
 ---
 
-## 🗺️ Future Roadmap (V2)
+## 🗺️ Roadmap & Milestones
 
-- [ ] **Alerting Integration:** Instant alerts via Email notifications (SES/SendGrid).
-- [ ] **ChatOps:** Native integrations for Discord and Slack webhook notifications.
-- [ ] **Public Status Pages:** Allow users to build highly-customizable public status dashboards.
-- [ ] **SSL Expiry Monitoring:** Proactive monitoring of TLS/SSL certificate status and notification warnings before expiration.
-- [ ] **Monitoring Telemetry:** Integrate Prometheus Metrics endpoints to monitor queue depth and API query latencies.
-- [ ] **Visual Metrics:** Ready-made Grafana dashboards to monitor service internals.
-- [ ] **CI/CD Automation:** Standard GitHub Actions CI/CD workflows for automated workspace linting, testing, and service packaging.
-- [ ] **Advanced Analytics:** Dynamic anomaly detection to isolate slow responses from real service degradation.
+### ✅ Completed (V1)
+- [x] **Distributed Scheduler-Worker Architecture:** Decoupled polling and execution using Redis (BullMQ) message queue.
+- [x] **Atomic Multi-Replica Scheduling:** Elimination of double-scheduling race conditions via PostgreSQL `FOR UPDATE SKIP LOCKED`.
+- [x] **Transactional Outbox Pattern:** Crash-safe job staging and outbox draining (`PendingCheck`) ensuring zero lost checks.
+- [x] **Email Alerting Integration:** Instant incident notification emails (OPEN & RESOLVED) via Resend API with responsive HTML templates.
+- [x] **Alert Idempotency & Deduplication:** Redis-backed idempotency cache preventing alert storms and duplicate notifications.
+- [x] **Dead-Letter Queue (DLQ) & Auto-Retries:** Exponential backoff with failed job logging in database for auditability.
+- [x] **Automated Data Retention:** Scheduled 30-day historical check log pruning for database maintenance.
+- [x] **RESTful API & Auth:** JWT authentication, bcrypt password hashing, and monitor/metric CRUD endpoints.
+- [x] **Next.js Real-Time Analytics Dashboard:** Interactive latency charts, uptime percentage meters, and incident logs.
+
+### 🚧 In Progress / Upcoming (V2)
+- [ ] **Public Status Pages:** Shareable, customizable public status dashboards with incident postmortems.
+- [ ] **SSL / TLS Certificate Monitoring:** Proactive SSL expiration tracking and alerting before certificate lapse.
+- [ ] **Multi-Region Probing:** Geo-distributed worker probes across US, EU, and APAC to detect localized downtime.
+- [ ] **Prometheus & OpenTelemetry Metrics:** Prometheus metrics exporter for queue depth, worker latency, and probe success rates.
+- [ ] **Pre-built Grafana Dashboards:** Ready-made Grafana templates for infrastructure and monitoring visualization.
 
 ---
 
