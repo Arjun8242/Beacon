@@ -33,20 +33,16 @@ Beacon implements this design to ensure isolation, concurrency, and reliable job
 Below are the key interfaces of the platform. For local development or deployment checks, ensure your screens cover:
 
 ### 1. Main Dashboard Analytics
-* **Recommended Focus:** Metric summary panels, active incident banners, latency over time graph, and the list of active/paused monitors.
 ![Main Dashboard](apps/web/public/screenshots/Screenshot%202026-06-18%20112525.png)
 
 ### 2. User Authentication
-* **Recommended Focus:** Clean, secure login and registration forms featuring responsive states and client-side credential validation.
 ![Authentication Screen](apps/web/public/screenshots/Screenshot%202026-06-18%20113626.png)
 
 ### 3. Monitor Management & Configuration
-* **Recommended Focus:** Form parameters including URL targets, polling intervals, HTTP methods, and status update confirmation indicators.
 ![Monitor Management](apps/web/public/screenshots/Screenshot%202026-06-18%20112625.png)
 
-### 4. Incident History (Coming Soon / Mockup)
-* **Recommended Focus:** Tabular logs showcasing historical incident durations, trigger timestamps, resolved timestamps, and response status codes.
-* **Placeholder:** ![Incident History](apps/web/public/screenshots/Screenshot%202026-06-18%20112547.png)
+### 4. Incident History
+![Incident History](apps/web/public/screenshots/Screenshot%202026-06-18%20112547.png)
 
 ---
 
