@@ -304,7 +304,7 @@ To support high-frequency querying and polling, the following indices are mainta
 1. Clone the repository:
    ```bash
    git clone https://github.com/Arjun8242/Beacon.git
-   cd uptime-monitor
+   cd Beacon
    ```
 
 2. Install dependencies:
